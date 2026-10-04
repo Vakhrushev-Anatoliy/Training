@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2E56D8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Тренировки">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAADEUlEQVR4nO3cP4scBRjA4dvDZE8FG/FPMMsuam4hRSpbe8HO4sDawiadiFiJIFYKfgE/gIV+DgsbEUJug+H2LqBoH28NZC1M6S8Yd+92E5+nHmZelh8vM8swg2sHN3fgn+xuegC2lzhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iA9tekBnnC7g53Ryxen4+F0MpyO9/bHw5eef+Tf/L1PT364cfcsxns4cazZs0/vXhkN9yfD6Xg4nexdGV3cGz6u61kcq7r0woXpeLg/flDD5RcvDAabnmlNxLGS10fDb7+YbHqKs/K4bjzOgThI4iCJgyQO0pY+rbz95nOfX7/0kANu3D599+P5uc3z/2RzkMRBEgdpS+85nhjL5c6d3+7N5qeH88XsaHE4X3z14SvT8XDTc/0r4lizPxb3bx0vZvPF3zXMjhd3T+9veqj/SBwrWS53fvn93ux4cTh/EMTJr38ul5sea03EsZKf7yzeun5701OcFTekJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcpDW/Cfbdl5PXLp/H27NXX9378ZvpWk71/mcn3/+0ge/mbD+bgyQOkjhI4iCJgyQOkjhI4iCJgyQO0pr/Pn/ng6O1nMc3wbaBzUESB0kcJHGQxEESB0kcJHGQxEESB0kcJB+pXdXXn4zeuPrMWV/ikY4/+Ojo8Gix+nVtDpI4SOIgiYMkDpI4SOIgiYMkDpI4SOIgiYM0uHZwc9MzsKVsDpI4SOIgiYMkDpI4SOIgiYMkDpI4SOIgiYMkDpI4SOIgiYMkDpI4SOIgiYMkDpI4SOIgiYMkDpI4SOIgiYMkDpI4SOIgiYMkDpI4SOIgiYMkDpI4SOIgiYMkDpI4SOIgiYMkDpI4SOIgiYMkDpI4SOIgiYMkDtJfnyxo9c2PtB0AAAAASUVORK5CYII=">
+<link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAADEUlEQVR4nO3cP4scBRjA4dvDZE8FG/FPMMsuam4hRSpbe8HO4sDawiadiFiJIFYKfgE/gIV+DgsbEUJug+H2LqBoH28NZC1M6S8Yd+92E5+nHmZelh8vM8swg2sHN3fgn+xuegC2lzhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iA9tekBnnC7g53Ryxen4+F0MpyO9/bHw5eef+Tf/L1PT364cfcsxns4cazZs0/vXhkN9yfD6Xg4nexdGV3cGz6u61kcq7r0woXpeLg/flDD5RcvDAabnmlNxLGS10fDb7+YbHqKs/K4bjzOgThI4iCJgyQO0pY+rbz95nOfX7/0kANu3D599+P5uc3z/2RzkMRBEgdpS+85nhjL5c6d3+7N5qeH88XsaHE4X3z14SvT8XDTc/0r4lizPxb3bx0vZvPF3zXMjhd3T+9veqj/SBwrWS53fvn93ux4cTh/EMTJr38ul5sea03EsZKf7yzeun5701OcFTekJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcpDW/Cfbdl5PXLp/H27NXX9378ZvpWk71/mcn3/+0ge/mbD+bgyQOkjhI4iCJgyQOkjhI4iCJgyQO0pr/Pn/ng6O1nMc3wbaBzUESB0kcJHGQxEESB0kcJHGQxEESB0kcJB+pXdXXn4zeuPrMWV/ikY4/+Ojo8Gix+nVtDpI4SOIgiYMkDpI4SOIgiYMkDpI4SOIgiYM0uHZwc9MzsKVsDpI4SOIgiYMkDpI4SOIgiYMkDpI4SOIgiYMkDpI4SOIgiYMkDpI4SOIgiYMkDpI4SOIgiYMkDpI4SOIgiYMkDpI4SOIgiYMkDpI4SOIgiYMkDpI4SOIgiYMkDpI4SOIgiYMkDpI4SOIgiYMkDpI4SOIgiYMkDtJfnyxo9c2PtB0AAAAASUVORK5CYII=">
+<title>Тренировки</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;600;700&display=swap">
+<style>
+/* Layout: one phone column — day header, exercise cards in the order of the routine, history at the bottom */
+:root{
+  --bg:#EEF1F4; --surface:#FFFFFF; --ink:#16202A; --muted:#5E6B78; --line:#D8DEE5;
+  --accent:#2E56D8; --accent-soft:#E2E9FB; --ok:#1E8A5A; --ok-soft:#DDF2E7;
+  --display:"Unbounded", "Arial Black", system-ui, sans-serif;
+  --body:"Manrope", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F151B; --surface:#18212A; --ink:#E8EDF2; --muted:#93A0AD; --line:#2A3540;
+  --accent:#7C9BFF; --accent-soft:#1F2B4A; --ok:#4CC88E; --ok-soft:#163327; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#18212A; --ink:#E8EDF2; --muted:#93A0AD; --line:#2A3540;
+  --accent:#7C9BFF; --accent-soft:#1F2B4A; --ok:#4CC88E; --ok-soft:#163327; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+.wrap{max-width:520px;margin:0 auto;padding-inline:16px;padding-block:14px 40px;display:flex;flex-direction:column;gap:14px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.num{font-family:var(--display);font-variant-numeric:tabular-nums}
+
+header{display:flex;flex-direction:column;gap:10px}
+.daybar{display:flex;align-items:center;gap:8px}
+.daybar h1{flex:1;margin:0;font-family:var(--display);font-weight:700;font-size:20px;text-wrap:balance}
+.daybar small{display:block;font-family:var(--body);font-weight:600;font-size:13px;color:var(--muted);letter-spacing:.02em}
+.icon-btn{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-size:18px;display:grid;place-items:center}
+.icon-btn:disabled{opacity:.35;cursor:default}
+
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.stat b{display:block;font-family:var(--display);font-size:20px;font-weight:700}
+.stat span{font-size:12px;color:var(--muted)}
+.progress{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.progress i{display:block;height:100%;background:var(--ok);width:0;transition:width .3s}
+
+.rules{font-size:13px;color:var(--muted);margin:0}
+
+.ex{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.ex.done{border-color:var(--ok);box-shadow:inset 4px 0 0 var(--ok)}
+.ex-head{display:flex;gap:10px;align-items:baseline}
+.ex-n{font-family:var(--display);font-size:12px;color:var(--muted);min-width:18px}
+.ex-title{flex:1;min-width:0}
+.ex-title h2{margin:0;font-size:16px;font-weight:700}
+.ex-title p{margin:2px 0 0;font-size:12.5px;color:var(--muted)}
+.ts{font-size:12px;font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:8px;padding:2px 7px;white-space:nowrap}
+.ts.new{color:var(--ok);background:var(--ok-soft)}
+
+.side{display:flex;align-items:center;gap:10px}
+.side-label{width:58px;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.side-label.none{display:none}
+.counter{display:flex;align-items:center;gap:6px}
+.counter button{width:46px;height:46px;border-radius:12px;border:1px solid var(--line);background:var(--bg);font-size:22px;font-weight:700}
+.counter button:active{transform:scale(.95)}
+.counter input{width:64px;height:46px;text-align:center;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font-family:var(--display);font-size:20px;font-weight:700}
+.target{flex:1;text-align:right;font-size:12px;color:var(--muted);line-height:1.3}
+.target b{display:block;font-family:var(--display);font-size:15px;color:var(--ink)}
+.target.hit b{color:var(--ok)}
+
+.rest{position:sticky;bottom:calc(env(safe-area-inset-bottom,0px) + 10px);align-self:center;border:none;border-radius:999px;background:var(--accent);color:#fff;padding:12px 22px;font-weight:700;box-shadow:0 6px 20px rgba(20,40,90,.25)}
+.rest.running{background:var(--ink);color:var(--bg)}
+
+section.hist{display:flex;flex-direction:column;gap:8px}
+section.hist h3{margin:6px 0 0;font-family:var(--display);font-size:15px}
+.hist-table{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:14px}
+table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{padding:7px 8px;text-align:center;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-weight:700;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+td:first-child,th:first-child{text-align:left;position:sticky;left:0;background:var(--surface)}
+tr:last-child td{border-bottom:none}
+.empty{padding:14px;color:var(--muted);font-size:13px}
+.sync{font-size:13px;color:var(--muted);margin:0}
+.sbcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.sb{display:flex;flex-direction:column;gap:8px}
+.sb-note{margin:0;font-size:13px}
+.sb-in{width:100%;height:42px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);padding:0 12px;font:inherit}
+.backup-row{display:flex;gap:8px;flex-wrap:wrap}
+.bk{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer}
+.bk.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.sec-h{display:flex;align-items:baseline;gap:8px;margin:4px 0 0}
+.sec-h h2{margin:0;font-family:var(--display);font-size:16px;flex:1}
+.sec-h span{font-size:12px;color:var(--muted)}
+.swim-top{display:flex;align-items:baseline;gap:8px}
+.swim-top h3{margin:0;font-size:16px;flex:1}
+.swim-top b{font-family:var(--display);font-size:15px;color:var(--accent)}
+.badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);border-radius:6px;padding:2px 6px}
+.badge.test{color:#fff;background:#D8452E}
+.sets{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.sets li{display:grid;grid-template-columns:64px 1fr auto;gap:8px;padding:8px 0;border-bottom:1px dashed var(--line);align-items:baseline}
+.sets li:last-child{border-bottom:none}
+.sets .vol{font-family:var(--display);font-weight:700;font-size:14px}
+.sets .txt{font-size:13.5px}
+.sets .m{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.z{font-weight:700;border-radius:5px;padding:0 5px;font-size:12px}
+.z1{background:#E3EEF5;color:#2D5B78}.z2{background:#DDF2E7;color:#1E7A50}.z3{background:#FBEFD9;color:#9A5B00}.z4{background:#FBE1DC;color:#B23A22}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .z1{background:#1C2E3B;color:#9CC8E6}:root:not([data-theme="light"]) .z2{background:#163327;color:#7FD9AA}:root:not([data-theme="light"]) .z3{background:#3A2C12;color:#F2C46B}:root:not([data-theme="light"]) .z4{background:#3E1E18;color:#FF9C86}}
+.note{font-size:13px;color:var(--muted);margin:0}
+.swim-log{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-top:1px solid var(--line);padding-top:10px}
+.chk{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:12px;padding:9px 12px;background:var(--bg);font-weight:700;font-size:14px;cursor:pointer;user-select:none}
+.chk.on{border-color:var(--ok);background:var(--ok-soft);color:var(--ok)}
+.chk input{width:18px;height:18px;accent-color:var(--ok);margin:0}
+select.sb-in{width:auto;height:42px}
+.watch-btn{border:none;border-radius:12px;background:var(--ink);color:var(--bg);padding:11px 14px;font-weight:700}
+.rb-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px dashed var(--line)}
+.rb-row:last-child{border-bottom:none}
+.rb-row input{width:22px;height:22px;accent-color:var(--ok);flex:none}
+.rb-row label{flex:1;font-size:14px;font-weight:600;cursor:pointer}
+.rb-row label small{display:block;font-weight:400;font-size:12px;color:var(--muted)}
+.rb-row .rx{font-family:var(--display);font-size:13px;white-space:nowrap}
+details.zones summary{cursor:pointer;font-weight:700;font-size:14px}
+details.zones table{margin-top:8px;font-size:12px}
+.future .counter,.future .rb-row input{opacity:.4;pointer-events:none}
+#watch{position:fixed;inset:0;background:#000;color:#fff;z-index:50;display:flex;justify-content:center;align-items:flex-start;overflow:auto}
+#watch .w{width:100%;max-width:420px;padding:18px 14px 30px;font-family:var(--body)}
+#watch .wh{font-family:var(--display);font-size:20px;color:#FFD84D;margin:0 0 4px}
+#watch .ws{font-size:15px;color:#aaa;margin:0 0 10px}
+#watch ol{margin:0;padding:0;list-style:none;counter-reset:w}
+#watch li{counter-increment:w;font-size:22px;font-weight:700;line-height:1.25;padding:7px 0;border-bottom:1px solid #333;font-variant-numeric:tabular-nums}
+#watch li::before{content:counter(w) ". ";color:#777}
+#watch .hint{font-size:12px;color:#666;margin-top:14px;text-align:center}
+</style>
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)} body{margin:0} [hidden]{display:none!important}</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="daybar">
+      <button class="icon-btn" id="prev" aria-label="Предыдущий день">‹</button>
+      <h1 id="dayTitle">Сегодня<small id="dayDate"></small></h1>
+      <button class="icon-btn" id="next" aria-label="Следующий день">›</button>
+    </div>
+  </header>
+
+  <div class="sec-h"><h2>Бассейн</h2><span id="blockInfo"></span></div>
+  <div class="card" id="swim"></div>
+
+  <div class="sec-h"><h2>Зарядка</h2><span id="zInfo"></span></div>
+  <div class="summary">
+    <div class="stat"><b class="num" id="sDone">0/9</b><span>норма выполнена</span></div>
+    <div class="stat"><b class="num" id="sTotal">0</b><span>повторов за день</span></div>
+    <div class="stat"><b class="num" id="sStreak">0</b><span>дней подряд</span></div>
+  </div>
+  <div class="progress"><i id="bar"></i></div>
+  <p class="rules">Каждое упражнение до мышечного отказа, отдых 10 сек. Цель — прошлый результат +1.</p>
+  <div id="list" style="display:flex;flex-direction:column;gap:10px"></div>
+
+  <div id="rubberBox"></div>
+
+  <button class="rest" id="rest">Отдых 10 сек</button>
+
+  <section class="hist">
+    <h3>История</h3>
+    <div class="hist-table" id="hist"></div>
+  </section>
+  <section class="hist">
+    <h3>Синхронизация и копии</h3>
+    <div class="sbcard">
+      <p class="sync" id="sync"></p>
+      <div id="sbBox" class="sb"></div>
+      <div class="backup-row">
+        <button class="bk" id="exp">Сохранить копию в файл</button>
+        <label class="bk" for="imp">Восстановить из файла</label>
+        <input type="file" id="imp" accept=".json,application/json" hidden>
+      </div>
+    </div>
+  </section>
+</div>
+<div id="watch" hidden></div>
+
+<script>
+const EX = [
+  {id:"squat",  name:"Глубокие приседания", hint:"Держитесь за дверной проём"},
+  {id:"bridge", name:"Мостик", hint:"У стены"},
+  {id:"pushup", name:"Глубокие отжимания", hint:"Можно с подушкой под колени"},
+  {id:"dips",   name:"Отжимания на трицепс от стула", hint:"Спиной к стулу, руки на краю сиденья, локти назад. Опускайтесь до угла 90° в локтях"},
+  {id:"abs",    name:"Протяжки на пресс", hint:""},
+  {id:"bend",   name:"Наклоны у стены", hint:"На левую и правую сторону", sides:true},
+  {id:"glute",  name:"Закрутки на ягодицы", hint:"У стены, на левую и правую ногу", sides:true},
+  {id:"calf",   name:"Подъём на носки стоя", hint:"Медленно вверх, пауза наверху, медленно вниз. Можно держаться за стену"},
+  {id:"pullup", name:"Подтягивания", hint:"Широкий хват, подбородок выше перекладины. Пока не выходит — считайте негативы: запрыгнуть и медленно опускаться 3–5 сек"},
+];
+const KEYS = EX.flatMap(e => e.sides ? [e.id+"_L", e.id+"_R"] : [e.id]);
+const LS = "zaryadka-v1";
+
+let state = {days:{}};          // days: { "YYYY-MM-DD": { key: reps, _t: updatedAt } }
+try { const s = JSON.parse(localStorage.getItem(LS)); if (s && s.days) state = s; } catch(e){}
+
+const pad = n => String(n).padStart(2,"0");
+const iso = d => d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const todayISO = () => iso(new Date());
+let cur = todayISO();
+const DATA = {"weeks": [{"t": "Неделя 1 (02.11–06.11): втягивание", "d": "После перерыва главное — вернуть ощущение воды и технику. Скорость не форсировать, Z4 — только короткие ускорения."}, {"t": "Неделя 2 (09.11–13.11): нагрузка", "d": "Объём +20%. Пороговая серия длиннее, специфика 200 — уже чистая Z4."}, {"t": "Неделя 3 (16.11–20.11): пиковая нагрузка", "d": "Самая объёмная неделя блока. Появляются сотни в Z4 — это главный рабочий отрезок для удержания темпа на 200."}, {"t": "Неделя 4 (23.11–27.11): разгрузка + контрольный заплыв", "d": "Объём снижен, интенсивность сохраняется короткими отрезками. Чт и Пт — подводка к тесту."}], "plan": {"2026-11-02": {"w": 1, "t": "Аэробика + техника", "m": 1600, "it": [{"n": 1, "d": 300, "f": "Z1 разминка смешанно (в/ст + на спине)", "s": "300 Z1 разм"}, {"n": 4, "d": 50, "f": "техника Z1: догонялка / одной рукой, отдых 15 с", "s": "4×50 Z1 техн /15с"}, {"n": 6, "d": 100, "f": "Z2, отдых 20 с", "s": "6×100 Z2 1:30–35 /20с"}, {"n": 4, "d": 50, "f": "ноги с доской Z2, отдых 20 с", "s": "4×50 Z2 ноги /20с"}, {"n": 4, "d": 50, "f": "в/ст Z2, дыхание на 3 гребка (bilateral), отдых 15 с", "s": "4×50 Z2 дых 3 0:45–48 /15с"}, {"n": 1, "d": 100, "f": "Z1 заминка", "s": "100 Z1 замин"}]}, "2026-11-03": {"w": 1, "t": "Порог", "m": 1800, "it": [{"n": 1, "d": 400, "f": "Z1 разминка: 100 в/ст / 100 на спине / 100 ноги / 100 в/ст", "s": "400 Z1 разм"}, {"n": 4, "d": 50, "f": "нарастающе Z1→Z3 в каждом отрезке, отдых 15 с", "s": "4×50 нараст /15с"}, {"n": 8, "d": 100, "f": "Z3, отдых 30 с", "s": "8×100 Z3 1:22–26 /30с"}, {"n": 1, "d": 200, "f": "Z1", "s": "200 Z1"}, {"n": 4, "d": 25, "f": "Z4 ускорения, отдых 30 с", "s": "4×25 Z4 уск 0:16–18 /30с"}, {"n": 1, "d": 100, "f": "Z1 заминка", "s": "100 Z1 замин"}]}, "2026-11-04": {"w": 1, "t": "Техника + восстановление", "m": 1500, "it": [{"n": 1, "d": 300, "f": "Z1 разминка", "s": "300 Z1 разм"}, {"n": 6, "d": 50, "f": "техника: кулачки / догонялка / касание бедра, отдых 15 с", "s": "6×50 техн /15с"}, {"n": 4, "d": 100, "f": "Z2 с лопатками, отдых 20 с", "s": "4×100 Z2 лоп 1:30–35 /20с"}, {"n": 6, "d": 50, "f": "ноги Z2: 2 на груди, 2 на боку, 2 на спине, отдых 20 с", "s": "6×50 Z2 ноги /20с"}, {"n": 1, "d": 200, "f": "Z1 с колобашкой", "s": "200 Z1 колоб"}]}, "2026-11-05": {"w": 1, "t": "Специфика 200", "m": 1800, "it": [{"n": 1, "d": 400, "f": "Z1 разминка", "s": "400 Z1 разм"}, {"n": 4, "d": 50, "f": "нарастающе Z1→Z3, отдых 15 с", "s": "4×50 нараст /15с"}, {"n": 12, "d": 50, "f": "Z4 по 0:37–0:38, 3 серии по 4×50, отдых 20 с, между сериями 1 мин", "s": "3×(4×50) Z4 0:37–38 /20с"}, {"n": 1, "d": 300, "f": "Z2 с колобашкой", "s": "300 Z2 колоб 4:30–45"}, {"n": 4, "d": 50, "f": "Z1, дыхание на 3/5", "s": "4×50 Z1 дых 3/5"}, {"n": 1, "d": 100, "f": "Z1 заминка", "s": "100 Z1 замин"}]}, "2026-11-06": {"w": 1, "t": "Длинная аэробная", "m": 2000, "it": [{"n": 1, "d": 400, "f": "Z1 разминка", "s": "400 Z1 разм"}, {"n": 4, "d": 50, "f": "техника Z1, отдых 15 с", "s": "4×50 Z1 техн /15с"}, {"n": 3, "d": 300, "f": "Z2, отдых 30 с", "s": "3×300 Z2 4:30–45 /30с"}, {"n": 4, "d": 50, "f": "ноги Z2, отдых 20 с", "s": "4×50 Z2 ноги /20с"}, {"n": 6, "d": 25, "f": "Z4 ускорения, отдых 30 с", "s": "6×25 Z4 уск 0:16–18 /30с"}, {"n": 1, "d": 150, "f": "Z1 заминка", "s": "150 Z1 замин"}]}, "2026-11-09": {"w": 2, "t": "Аэробика + техника", "m": 2000, "it": [{"n": 1, "d": 400, "f": "Z1 разминка смешанно", "s": "400 Z1 разм"}, {"n": 4, "d": 50, "f": "техника Z1: догонялка / одной рукой, отдых 15 с", "s": "4×50 Z1 техн /15с"}, {"n": 8, "d": 100, "f": "Z2, отдых 20 с", "s": "8×100 Z2 1:30–35 /20с"}, {"n": 6, "d": 50, "f": "ноги с доской Z2, отдых 20 с", "s": "6×50 Z2 ноги /20с"}, {"n": 4, "d": 50, "f": "в/ст Z2, дыхание на 3 гребка, отдых 15 с", "s": "4×50 Z2 дых 3 0:45–48 /15с"}, {"n": 1, "d": 100, "f": "Z1 заминка", "s": "100 Z1 замин"}]}, "2026-11-10": {"w": 2, "t": "Порог", "m": 2200, "it": [{"n": 1, "d": 400, "f": "Z1 разминка: 100 в/ст / 100 на спине / 100 ноги / 100 в/ст", "s": "400 Z1 разм"}, {"n": 4, "d": 50, "f": "нарастающе Z1→Z3, отдых 15 с", "s": "4×50 нараст /15с"}, {"n": 10, "d": 100, "f": "Z3, отдых 25 с", "s": "10×100 Z3 1:22–26 /25с"}, {"n": 1, "d": 200, "f": "Z1", "s": "200 Z1"}, {"n": 4, "d": 50, "f": "Z2 с колобашкой, отдых 15 с", "s": "4×50 Z2 колоб 0:45–48 /15с"}, {"n": 4, "d": 25, "f": "Z4 ускорения, отдых 30 с", "s": "4×25 Z4 уск 0:16–18 /30с"}, {"n": 1, "d": 100, "f": "Z1 заминка", "s": "100 Z1 замин"}]}, "2026-11-11": {"w": 2, "t": "Техника + восстановление", "m": 1800, "it": [{"n": 1, "d": 300, "f": "Z1 разминка", "s": "300 Z1 разм"}, {"n": 6, "d": 50, "f": "техника: кулачки / догонялка / касание бедра, отдых 15 с", "s": "6×50 техн /15с"}, {"n": 5, "d": 100, "f": "Z2 с лопатками, отдых 20 с", "s": "5×100 Z2 лоп 1:30–35 /20с"}, {"n": 8, "d": 50, "f": "ноги Z2: 2 на груди, 2 на боку, 2 на спине, 2 на груди, отдых 20 с", "s": "8×50 Z2 ноги /20с"}, {"n": 1, "d": 300, "f": "Z1 с колобашкой", "s": "300 Z1 колоб"}]}, "2026-11-12": {"w": 2, "t": "Специфика 200", "m": 2200, "it": [{"n": 1, "d": 400, "f": "Z1 разминка", "s": "400 Z1 разм"}, {"n": 4, "d": 50, "f": "нарастающе Z1→Z3, отдых 15 с", "s": "4×50 нараст /15с"}, {"n": 16, "d": 50, "f": "Z4 по 0:36–0:37, 4 серии по 4×50, отдых 25 с, между сериями 1 мин", "s": "4×(4×50) Z4 0:36–37 /25с"}, {"n": 1, "d": 400, "f": "Z2 с колобашкой", "s": "400 Z2 колоб 6:00–20"}, {"n": 4, "d": 50, "f": "Z1, дыхание на 3/5", "s": "4×50 Z1 дых 3/5"}, {"n": 1, "d": 200, "f": "Z1 заминка", "s": "200 Z1 замин"}]}, "2026-11-13": {"w": 2, "t": "Длинная аэробная", "m": 2400, "it": [{"n": 1, "d": 400, "f": "Z1 разминка", "s": "400 Z1 разм"}, {"n": 4, "d": 50, "f": "техника Z1, отдых 15 с", "s": "4×50 Z1 техн /15с"}, {"n": 4, "d": 300, "f": "Z2, отдых 30 с", "s": "4×300 Z2 4:30–45 /30с"}, {"n": 6, "d": 50, "f": "ноги Z2, отдых 20 с", "s": "6×50 Z2 ноги /20с"}, {"n": 6, "d": 25, "f": "Z4 ускорения, отдых 30 с", "s": "6×25 Z4 уск 0:16–18 /30с"}, {"n": 1, "d": 150, "f": "Z1 заминка", "s": "150 Z1 замин"}]}, "2026-11-16": {"w": 3, "t": "Аэробика + техника", "m": 2400, "it": [{"n": 1, "d": 400, "f": "Z1 разминка смешанно", "s": "400 Z1 разм"}, {"n": 4, "d": 50, "f": "техника Z1: догонялка / одной рукой, отдых 15 с", "s": "4×50 Z1 техн /15с"}, {"n": 5, "d": 200, "f": "Z2, отдых 25 с", "s": "5×200 Z2 3:00–10 /25с"}, {"n": 8, "d": 50, "f": "ноги с доской Z2, отдых 20 с", "s": "8×50 Z2 ноги /20с"}, {"n": 6, "d": 50, "f": "в/ст Z2, дыхание на 3/5 гребков, отдых 15 с", "s": "6×50 Z2 дых 3/5 0:45–48 /15с"}, {"n": 1, "d": 100, "f": "Z1 заминка", "s": "100 Z1 замин"}]}, "2026-11-17": {"w": 3, "t": "Порог", "m": 2600, "it": [{"n": 1, "d": 400, "f": "Z1 разминка: 100 в/ст / 100 на спине / 100 ноги / 100 в/ст", "s": "400 Z1 разм"}, {"n": 4, "d": 50, "f": "нарастающе Z1→Z3, отдых 15 с", "s": "4×50 нараст /15с"}, {"n": 12, "d": 100, "f": "Z3, отдых 20 с", "s": "12×100 Z3 1:22–26 /20с"}, {"n": 1, "d": 200, "f": "Z1", "s": "200 Z1"}, {"n": 4, "d": 50, "f": "Z2 с колобашкой, отдых 15 с", "s": "4×50 Z2 колоб 0:45–48 /15с"}, {"n": 6, "d": 25, "f": "Z4 ускорения, отдых 30 с", "s": "6×25 Z4 уск 0:16–18 /30с"}, {"n": 1, "d": 250, "f": "Z1 заминка", "s": "250 Z1 замин"}]}, "2026-11-18": {"w": 3, "t": "Техника + восстановление", "m": 2000, "it": [{"n": 1, "d": 400, "f": "Z1 разминка", "s": "400 Z1 разм"}, {"n": 6, "d": 50, "f": "техника: кулачки / догонялка / касание бедра, отдых 15 с", "s": "6×50 техн /15с"}, {"n": 6, "d": 100, "f": "Z2 с лопатками, отдых 20 с", "s": "6×100 Z2 лоп 1:30–35 /20с"}, {"n": 8, "d": 50, "f": "ноги Z2: 2 на груди, 2 на боку, 2 на спине, 2 на груди, отдых 20 с", "s": "8×50 Z2 ноги /20с"}, {"n": 1, "d": 300, "f": "Z1 с колобашкой", "s": "300 Z1 колоб"}]}, "2026-11-19": {"w": 3, "t": "Специфика 200", "m": 2600, "it": [{"n": 1, "d": 400, "f": "Z1 разминка", "s": "400 Z1 разм"}, {"n": 4, "d": 50, "f": "нарастающе Z1→Z3, отдых 15 с", "s": "4×50 нараст /15с"}, {"n": 4, "d": 100, "f": "Z4 по 1:14–1:16, отдых 60 с", "s": "4×100 Z4 1:14–16 /60с"}, {"n": 1, "d": 200, "f": "Z1 активный отдых", "s": "200 Z1 акт.отд"}, {"n": 8, "d": 50, "f": "Z4 по 0:36–0:37, отдых 25 с", "s": "8×50 Z4 0:36–37 /25с"}, {"n": 4, "d": 50, "f": "ноги Z2, отдых 20 с", "s": "4×50 Z2 ноги /20с"}, {"n": 1, "d": 500, "f": "Z2 с колобашкой", "s": "500 Z2 колоб"}, {"n": 1, "d": 300, "f": "Z1 заминка", "s": "300 Z1 замин"}]}, "2026-11-20": {"w": 3, "t": "Длинная аэробная", "m": 2800, "it": [{"n": 1, "d": 400, "f": "Z1 разминка", "s": "400 Z1 разм"}, {"n": 4, "d": 50, "f": "техника Z1, отдых 15 с", "s": "4×50 Z1 техн /15с"}, {"n": 3, "d": 400, "f": "Z2, отдых 40 с", "s": "3×400 Z2 6:00–20 /40с"}, {"n": 8, "d": 50, "f": "ноги Z2, отдых 20 с", "s": "8×50 Z2 ноги /20с"}, {"n": 1, "d": 200, "f": "Z2 с колобашкой", "s": "200 Z2 колоб 3:00–10"}, {"n": 8, "d": 25, "f": "Z4 ускорения, отдых 30 с", "s": "8×25 Z4 уск 0:16–18 /30с"}, {"n": 1, "d": 200, "f": "Z1 заминка", "s": "200 Z1 замин"}]}, "2026-11-23": {"w": 4, "t": "Аэробика + техника", "m": 1600, "it": [{"n": 1, "d": 400, "f": "Z1 разминка смешанно", "s": "400 Z1 разм"}, {"n": 4, "d": 50, "f": "техника Z1, отдых 15 с", "s": "4×50 Z1 техн /15с"}, {"n": 6, "d": 100, "f": "Z2, отдых 20 с", "s": "6×100 Z2 1:30–35 /20с"}, {"n": 4, "d": 50, "f": "ноги с доской Z2, отдых 20 с", "s": "4×50 Z2 ноги /20с"}, {"n": 4, "d": 25, "f": "Z4 ускорения, отдых 30 с", "s": "4×25 Z4 уск 0:16–18 /30с"}, {"n": 1, "d": 100, "f": "Z1 заминка", "s": "100 Z1 замин"}]}, "2026-11-24": {"w": 4, "t": "Порог (укороченный)", "m": 1600, "it": [{"n": 1, "d": 400, "f": "Z1 разминка: 100 в/ст / 100 на спине / 100 ноги / 100 в/ст", "s": "400 Z1 разм"}, {"n": 4, "d": 50, "f": "нарастающе Z1→Z3, отдых 15 с", "s": "4×50 нараст /15с"}, {"n": 6, "d": 100, "f": "Z3, отдых 30 с", "s": "6×100 Z3 1:22–26 /30с"}, {"n": 1, "d": 200, "f": "Z1", "s": "200 Z1"}, {"n": 4, "d": 25, "f": "Z4 ускорения, отдых 30 с", "s": "4×25 Z4 уск 0:16–18 /30с"}, {"n": 1, "d": 100, "f": "Z1 заминка", "s": "100 Z1 замин"}]}, "2026-11-25": {"w": 4, "t": "Техника + восстановление", "m": 1400, "it": [{"n": 1, "d": 300, "f": "Z1 разминка", "s": "300 Z1 разм"}, {"n": 6, "d": 50, "f": "техника: кулачки / догонялка / касание бедра, отдых 15 с", "s": "6×50 техн /15с"}, {"n": 4, "d": 100, "f": "Z2 с лопатками, отдых 20 с", "s": "4×100 Z2 лоп 1:30–35 /20с"}, {"n": 4, "d": 50, "f": "ноги Z2, отдых 20 с", "s": "4×50 Z2 ноги /20с"}, {"n": 1, "d": 200, "f": "Z1 с колобашкой", "s": "200 Z1 колоб"}]}, "2026-11-26": {"w": 4, "t": "Активация", "m": 1200, "it": [{"n": 1, "d": 400, "f": "Z1 разминка", "s": "400 Z1 разм"}, {"n": 4, "d": 50, "f": "техника Z1, отдых 15 с", "s": "4×50 Z1 техн /15с"}, {"n": 4, "d": 50, "f": "Z4 в темпе теста — 0:36–0:37, отдых 60 с", "s": "4×50 Z4 0:36–37 /60с"}, {"n": 1, "d": 200, "f": "Z1", "s": "200 Z1"}, {"n": 4, "d": 25, "f": "Z4 со старта (тумбочка или от стенки), отдых 45 с", "s": "4×25 Z4 старт 0:16–18 /45с"}, {"n": 1, "d": 100, "f": "Z1 заминка", "s": "100 Z1 замин"}]}, "2026-11-27": {"w": 4, "t": "КОНТРОЛЬНЫЙ ЗАПЛЫВ 200", "m": 1200, "it": [{"n": 1, "d": 400, "f": "Z1 разминка: 100 в/ст / 100 на спине / 100 ноги / 100 в/ст", "s": "400 Z1 разм"}, {"n": 4, "d": 50, "f": "нарастающе Z1→Z4, отдых 20 с", "s": "4×50 нараст /20с"}, {"n": 2, "d": 25, "f": "Z4 со старта, отдых 1 мин", "s": "2×25 Z4 старт 0:16–18 /1мин"}, {"n": 1, "d": 150, "f": "Z1, затем пауза 5–8 мин", "s": "150 Z1 /пауза 5–8мин"}, {"n": 1, "d": 200, "f": "ТЕСТ — максимально, с тумбочки; записать сплиты по 50", "s": "200 ТЕСТ! сплиты 34.5/37.5/38.5/37.5"}, {"n": 1, "d": 200, "f": "Z1 заминка", "s": "200 Z1 замин"}]}}};
+const PLAN = DATA.plan;
+const BLOCK_START = "2026-11-02", BLOCK_END = "2026-11-29", RUBBER_START = "2026-11-01";
+const shift = (s, k) => { const d = new Date(s+"T12:00:00"); d.setDate(d.getDate()+k); return iso(d); };
+const fmt = s => new Date(s+"T12:00:00").toLocaleDateString("ru-RU",{weekday:"long", day:"numeric", month:"long"});
+const fmtShort = s => new Date(s+"T12:00:00").toLocaleDateString("ru-RU",{day:"numeric", month:"short"});
+
+function lastBefore(key, day){
+  const ds = Object.keys(state.days).filter(d => d < day && state.days[d][key] > 0).sort();
+  return ds.length ? state.days[ds[ds.length-1]][key] : null;
+}
+const target = (key, day) => { const l = lastBefore(key, day); return l == null ? null : l + 1; };
+const val = (key, day) => (state.days[day] && state.days[day][key]) || 0;
+function exDone(e, day){
+  const ks = e.sides ? [e.id+"_L", e.id+"_R"] : [e.id];
+  return ks.every(k => { const v = val(k, day), t = target(k, day); return v > 0 && (t == null || v >= t); });
+}
+const dayHasData = o => KEYS.some(k => o[k] > 0) || RB.some(r => o[r.id]) || (o.swim && (o.swim.done || o.swim.rpe || o.swim.note));
+const hasAny = day => state.days[day] && KEYS.some(k => state.days[day][k] > 0);
+
+function streak(){
+  let d = hasAny(todayISO()) ? todayISO() : shift(todayISO(), -1), n = 0;
+  while (hasAny(d)) { n++; d = shift(d, -1); }
+  return n;
+}
+
+function setVal(key, v){
+  v = Math.max(0, Math.min(999, Math.round(+v || 0)));
+  const day = state.days[cur] || (state.days[cur] = {});
+  day[key] = v; day._t = Date.now();
+  if (!dayHasData(day)) delete state.days[cur];
+  save(); renderStatus(); renderHist();
+}
+
+function sideRow(e, key, label){
+  const t = target(key, cur), v = val(key, cur);
+  return `<div class="side">
+    <span class="side-label ${label?"":"none"}">${label}</span>
+    <div class="counter">
+      <button data-k="${key}" data-d="-1" aria-label="Минус">−</button>
+      <input id="in_${key}" data-k="${key}" type="number" inputmode="numeric" min="0" value="${v||""}" placeholder="0" aria-label="${e.name} ${label}">
+      <button data-k="${key}" data-d="1" aria-label="Плюс">+</button>
+    </div>
+    <div class="target" id="tg_${key}">${t==null ? "первый раз:<b>до отказа</b>" : `цель:<b class="num">${t}</b>`}</div>
+  </div>`;
+}
+
+
+// ===== Резина (с 01.11, не до отказа) =====
+const RB = [
+  {id:"rb1", name:"Имитация гребка в/ст в наклоне", hint:"Высокий локоть на захвате, тяга до бедра, поочерёдно", rx:["2×30 с","3×30 с","3×45 с","2×30 с"]},
+  {id:"rb2", name:"Двумя руками одновременно", hint:"Как баттерфляй, мощный финиш к бедру", rx:["2×20 с","2×30 с","3×30 с","2×20 с"]},
+  {id:"rb3", name:"Разгибание на трицепс в наклоне", hint:"Финальная часть гребка", rx:["2×12","2×15","3×15","2×12"]},
+  {id:"rb4", name:"Наружная ротация плеча", hint:"Локоть прижат, 90°, лёгкая резина — профилактика плеча", rx:["2×12 на руку","2×15 на руку","2×15 на руку","2×12 на руку"]},
+  {id:"rb5", name:"Y-T-W", hint:"Лёгкая резина, сведение лопаток", rx:["1×8 каждой буквы","2×8","2×10","1×10"]},
+];
+const dayDiff = (a, b) => Math.round((new Date(a+"T12:00:00") - new Date(b+"T12:00:00")) / 864e5);
+const blockWeek = d => Math.max(1, Math.min(4, Math.floor(dayDiff(d, BLOCK_START) / 7) + 1));
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const zTag = t => t.replace(/Z([1-4])/g, '<span class="z z$1">Z$1</span>');
+
+function renderRubber(){
+  const box = document.getElementById("rubberBox");
+  if (cur < RUBBER_START){ box.innerHTML = ""; return; }
+  const w = blockWeek(cur), o = state.days[cur] || {};
+  const tail = cur > BLOCK_END ? " · протокол блока 2 добавим позже" : "";
+  const isTest = cur === "2026-11-27";
+  box.innerHTML = `<div class="sec-h"><h2>Резина</h2><span>неделя ${w}${tail}</span></div>
+    <div class="card">
+      <p class="note">${isTest ? "Сегодня контрольный заплыв — резину не делаем." : "Не до отказа: как только гребок «разваливается» (локоть падает), подход окончен. Отдых 30 с."}</p>
+      ${isTest ? "" : RB.map(r => `<div class="rb-row"><input type="checkbox" id="c_${r.id}" data-rb="${r.id}" ${o[r.id]?"checked":""}>
+        <label for="c_${r.id}">${r.name}<small>${r.hint}</small></label><span class="rx">${r.rx[w-1]}</span></div>`).join("")}
+    </div>`;
+}
+document.getElementById("rubberBox").addEventListener("change", ev => {
+  const id = ev.target.dataset.rb; if (!id) return;
+  const day = state.days[cur] || (state.days[cur] = {});
+  day[id] = ev.target.checked ? 1 : 0; day._t = Date.now();
+  if (!dayHasData(day)) delete state.days[cur];
+  save(); renderHist();
+});
+
+// ===== Бассейн =====
+const ZONES = [["Z1","восстановление","1:40+","0:50+","3:20+"],["Z2","аэробная","1:30–1:35","0:45–0:48","3:00–3:10"],["Z3","порог","1:22–1:26","0:41–0:43","2:44–2:52"],["Z4","темп 200","1:12–1:16","0:35–0:37","2:26–2:32"]];
+function swimCell(o){ const s = o.swim; if (!s || !(s.done || s.rpe)) return "–"; return (s.done ? "✓" : "") + (s.rpe ? " " + s.rpe : ""); }
+
+function renderSwim(){
+  const box = document.getElementById("swim"), p = PLAN[cur], wd = new Date(cur+"T12:00:00").getDay();
+  const info = document.getElementById("blockInfo");
+  if (cur < BLOCK_START){
+    const n = dayDiff(BLOCK_START, cur);
+    info.textContent = "Блок 1 ещё не начался";
+    box.innerHTML = `<p class="note">Блок 1 стартует в понедельник, 2 ноября — через ${n} дн. До этого: утренняя зарядка и ходьба 5–12 км в день.</p>`;
+    return;
+  }
+  if (!p){
+    info.textContent = cur > "2026-11-27" ? "после блока 1" : "неделя " + blockWeek(cur);
+    box.innerHTML = cur > "2026-11-27"
+      ? `<p class="note">Блок 1 закончен. Программа блока 2 будет добавлена по итогам контрольного заплыва 27.11.</p>`
+      : `<p class="note">${wd === 0 ? "Воскресенье — полный отдых." : "Суббота — отдых от бассейна: зарядка, резина, ходьба."}</p>`;
+    return;
+  }
+  const W = DATA.weeks[p.w-1];
+  info.textContent = W.t.split(":")[0].replace("Неделя","неделя");
+  const s = (state.days[cur] && state.days[cur].swim) || {};
+  const isTest = /КОНТРОЛЬ/.test(p.t);
+  box.innerHTML = `
+    <div class="swim-top"><h3>${isTest ? '<span class="badge test">Тест</span> ' : ""}${esc(p.t)}</h3><b>${p.m} м</b></div>
+    <p class="note">${esc(W.t.split(": ")[1] || "")} — ${esc(W.d)}</p>
+    <ul class="sets">${p.it.map(i => `<li><span class="vol">${i.n>1 ? i.n+"×"+i.d : i.d}</span><span class="txt">${zTag(esc(i.f))}</span><span class="m">${i.n*i.d}</span></li>`).join("")}</ul>
+    ${isTest ? `<p class="note">Раскладка на 2:28: 34.5 / 37.5 / 38.5 / 37.5 (нарастающим 0:34.5 → 1:12.0 → 1:50.5 → 2:28.0).</p>` : ""}
+    <div class="backup-row"><button class="watch-btn" id="watchBtn">⌚ Экран для часов</button></div>
+    <details class="zones"><summary>Зоны (на 100 / 50 / 200 м)</summary>
+      <table><thead><tr><th>Зона</th><th>100</th><th>50</th><th>200</th></tr></thead><tbody>
+      ${ZONES.map(z => `<tr><td><span class="z z${z[0][1]}">${z[0]}</span> ${z[1]}</td><td>${z[2]}</td><td>${z[3]}</td><td>${z[4]}</td></tr>`).join("")}
+      </tbody></table></details>
+    <div class="swim-log">
+      <label class="chk ${s.done?"on":""}"><input type="checkbox" id="swDone" ${s.done?"checked":""}>Сделано</label>
+      <select class="sb-in" id="swRpe" aria-label="RPE"><option value="">RPE</option>${[1,2,3,4,5,6,7,8,9,10].map(n=>`<option ${s.rpe==n?"selected":""}>${n}</option>`).join("")}</select>
+      <input class="sb-in" id="swNote" placeholder="${isTest ? "Время и сплиты, напр. 2:28.4 (34.6/37.9/38.4/37.5)" : "Заметка: времена отрезков, самочувствие плеч"}" value="${esc(s.note||"")}">
+    </div>`;
+  document.getElementById("watchBtn").onclick = () => openWatch(p);
+  const upd = () => {
+    const day = state.days[cur] || (state.days[cur] = {});
+    day.swim = {done: document.getElementById("swDone").checked, rpe: +document.getElementById("swRpe").value || 0, note: document.getElementById("swNote").value.trim()};
+    day._t = Date.now();
+    document.querySelector(".chk").classList.toggle("on", day.swim.done);
+    if (!dayHasData(day)) delete state.days[cur];
+    save(); renderHist();
+  };
+  ["swDone","swRpe"].forEach(id => document.getElementById(id).onchange = upd);
+  document.getElementById("swNote").oninput = upd;
+}
+
+function openWatch(p){
+  const w = document.getElementById("watch");
+  w.innerHTML = `<div class="w"><p class="wh">${fmtShort(cur)} · ${p.m} м</p><p class="ws">${esc(p.t)}</p>
+    <ol>${p.it.map(i => `<li>${esc(i.s)}</li>`).join("")}</ol>
+    <p class="hint">Сделайте скриншот · нажмите, чтобы закрыть</p></div>`;
+  w.hidden = false;
+  w.onclick = () => { w.hidden = true; };
+}
+
+function render(){
+  const isToday = cur === todayISO();
+  document.getElementById("dayTitle").firstChild.textContent = isToday ? "Сегодня" : (cur === shift(todayISO(),-1) ? "Вчера" : fmtShort(cur));
+  document.getElementById("dayDate").textContent = fmt(cur);
+  document.getElementById("next").disabled = false;
+  document.body.classList.toggle("future", cur > todayISO());
+  renderSwim(); renderRubber();
+  document.getElementById("list").innerHTML = EX.map((e,i) => `
+    <article class="ex" id="ex_${e.id}">
+      <div class="ex-head">
+        <span class="ex-n">${i+1}</span>
+        <div class="ex-title"><h2>${e.name}</h2>${e.hint?`<p>${e.hint}</p>`:""}</div>
+      </div>
+      ${e.sides ? sideRow(e, e.id+"_L", "Левая") + sideRow(e, e.id+"_R", "Правая") : sideRow(e, e.id, "")}
+    </article>`).join("");
+  renderStatus(); renderHist();
+}
+
+function renderStatus(){
+  let done = 0, total = 0;
+  EX.forEach(e => {
+    const ok = exDone(e, cur); if (ok) done++;
+    document.getElementById("ex_"+e.id)?.classList.toggle("done", ok);
+  });
+  KEYS.forEach(k => {
+    total += val(k, cur);
+    const t = target(k, cur), el = document.getElementById("tg_"+k);
+    if (el) el.classList.toggle("hit", t != null && val(k, cur) >= t);
+  });
+  document.getElementById("sDone").textContent = done+"/"+EX.length;
+  document.getElementById("sTotal").textContent = total;
+  document.getElementById("sStreak").textContent = streak();
+  document.getElementById("bar").style.width = (done/EX.length*100)+"%";
+}
+
+function renderHist(){
+  const days = Object.keys(state.days).filter(d => dayHasData(state.days[d])).sort().reverse().slice(0, 30);
+  const box = document.getElementById("hist");
+  if (!days.length){ box.innerHTML = `<div class="empty">Здесь появятся ваши результаты по дням. Отметьте первое упражнение выше.</div>`; return; }
+  const cols = [["Прис.","squat"],["Мост","bridge"],["Отж.","pushup"],["Трицепс","dips"],["Пресс","abs"],["Накл. Л","bend_L"],["Накл. П","bend_R"],["Ягод. Л","glute_L"],["Ягод. П","glute_R"],["Носки","calf"],["Подт.","pullup"]];
+  box.innerHTML = `<table><thead><tr><th>Дата</th>${cols.map(c=>`<th>${c[0]}</th>`).join("")}<th>Бассейн</th><th>Резина</th></tr></thead><tbody>${
+    days.map(d => `<tr><td>${fmtShort(d)}</td>${cols.map(c => `<td>${state.days[d][c[1]]||"–"}</td>`).join("")}<td>${swimCell(state.days[d])}</td><td>${RB.filter(r=>state.days[d][r.id]).length||"–"}</td></tr>`).join("")
+  }</tbody></table>`;
+}
+
+document.getElementById("list").addEventListener("click", ev => {
+  const b = ev.target.closest("button[data-k]"); if (!b) return;
+  const k = b.dataset.k, nv = Math.max(0, val(k, cur) + (+b.dataset.d));
+  document.getElementById("in_"+k).value = nv || "";
+  setVal(k, nv);
+});
+document.getElementById("list").addEventListener("input", ev => {
+  if (ev.target.matches("input[data-k]")) setVal(ev.target.dataset.k, ev.target.value);
+});
+document.getElementById("prev").onclick = () => { cur = shift(cur,-1); render(); };
+document.getElementById("next").onclick = () => { cur = shift(cur,1); render(); };
+
+// Rest timer
+let timer = null;
+const restBtn = document.getElementById("rest");
+restBtn.onclick = () => {
+  if (timer){ clearInterval(timer); timer = null; restBtn.classList.remove("running"); restBtn.textContent = "Отдых 10 сек"; return; }
+  let s = 10; restBtn.classList.add("running"); restBtn.textContent = "Отдых: "+s;
+  timer = setInterval(() => {
+    s--;
+    if (s <= 0){ clearInterval(timer); timer = null; restBtn.classList.remove("running"); restBtn.textContent = "Поехали! · Отдых 10 сек";
+      try { navigator.vibrate && navigator.vibrate([200,100,200]); } catch(e){}
+      setTimeout(() => { if (!timer) restBtn.textContent = "Отдых 10 сек"; }, 2500);
+    } else restBtn.textContent = "Отдых: "+s;
+  }, 1000);
+};
+
+// ===== Настройки Supabase (можно вписать сюда, тогда не придётся вводить на каждом устройстве) =====
+const SUPABASE_URL = "https://qfhsrxrbvtnqqsluotup.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmaHNyeHJidnRucXFzbHVvdHVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwOTg2NjMsImV4cCI6MjEwNjY3NDY2M30.zse5f42nWBEaxqj3UHaJTlIEkerszndjs6denp2k2iA";
+// ================================================================================================
+
+const syncEl = document.getElementById("sync");
+const CFG = "zaryadka-sb-cfg", SES = "zaryadka-sb-session";
+const lsGet = k => { try { return JSON.parse(localStorage.getItem(k)); } catch(e){ return null; } };
+const lsSet = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch(e){} };
+
+let cfg = (SUPABASE_URL && SUPABASE_ANON_KEY) ? {url: SUPABASE_URL, key: SUPABASE_ANON_KEY} : lsGet(CFG);
+let session = lsGet(SES);   // {access_token, refresh_token, expires_at, email, uid}
+let pendingEmail = "", saveT = null;
+
+function merge(remote){
+  const out = {...state.days};
+  for (const [d, r] of Object.entries(remote || {})) {
+    if (!out[d] || (r._t || 0) >= (out[d]._t || 0)) out[d] = r;
+  }
+  return out;
+}
+function save(){
+  try { localStorage.setItem(LS, JSON.stringify(state)); } catch(e){}
+  if (!session) return;
+  clearTimeout(saveT);
+  saveT = setTimeout(push, 800);
+}
+
+const base = () => cfg.url.replace(/\/+$/, "");
+async function api(path, opts = {}, auth = true){
+  const h = {"apikey": cfg.key, "Content-Type": "application/json", ...(opts.headers || {})};
+  if (auth && session) h["Authorization"] = "Bearer " + session.access_token;
+  const r = await fetch(base() + path, {...opts, headers: h});
+  const txt = await r.text(); let body = null; try { body = txt ? JSON.parse(txt) : null; } catch(e){}
+  if (!r.ok) { const err = new Error((body && (body.msg || body.message || body.error_description)) || ("HTTP " + r.status)); err.status = r.status; throw err; }
+  return body;
+}
+function takeSession(t){
+  const p = JSON.parse(atob(t.access_token.split(".")[1].replace(/-/g,"+").replace(/_/g,"/")));
+  session = {access_token: t.access_token, refresh_token: t.refresh_token,
+             expires_at: Date.now() + (t.expires_in || 3600) * 1000, uid: p.sub, email: p.email || (t.user && t.user.email) || pendingEmail};
+  lsSet(SES, session);
+}
+async function ensureFresh(){
+  if (!session) return false;
+  if (Date.now() < session.expires_at - 60000) return true;
+  try { takeSession(await api("/auth/v1/token?grant_type=refresh_token", {method:"POST", body: JSON.stringify({refresh_token: session.refresh_token})}, false)); return true; }
+  catch(e){ if (e.status === 400 || e.status === 401) { session = null; lsSet(SES, null); renderSync(); } return false; }
+}
+async function pull(){
+  if (!cfg || !await ensureFresh()) return;
+  try {
+    syncEl.textContent = "Синхронизация…";
+    const rows = await api("/rest/v1/workout_log?select=days&user_id=eq." + session.uid);
+    const remote = rows && rows[0] ? rows[0].days : {};
+    const before = JSON.stringify(state.days);
+    state.days = merge(remote);
+    try { localStorage.setItem(LS, JSON.stringify(state)); } catch(e){}
+    if (JSON.stringify(state.days) !== before) render();
+    if (JSON.stringify(remote) !== JSON.stringify(state.days)) await push(); else stamp();
+  } catch(e) { syncEl.textContent = "Нет связи с Supabase: " + e.message + ". Данные сохранены на телефоне."; }
+}
+async function push(){
+  if (!cfg || !await ensureFresh()) return;
+  try {
+    syncEl.textContent = "Сохраняю…";
+    await api("/rest/v1/workout_log?on_conflict=user_id", {method:"POST",
+      headers: {"Prefer": "resolution=merge-duplicates,return=minimal"},
+      body: JSON.stringify({user_id: session.uid, days: state.days, updated_at: new Date().toISOString()})});
+    stamp();
+  } catch(e) { syncEl.textContent = "Не удалось сохранить в облако: " + e.message + ". Данные остались на телефоне."; }
+}
+const stamp = () => syncEl.textContent = "Синхронизировано в " + new Date().toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"});
+
+// --- UI ---
+const sb = document.getElementById("sbBox");
+function renderSync(){
+  if (!cfg){
+    syncEl.textContent = "Данные хранятся только на этом телефоне.";
+    sb.innerHTML = `<p class="sb-note">Для синхронизации между устройствами укажите данные проекта Supabase (Project Settings → API).</p>
+      <input id="sbUrl" class="sb-in" placeholder="Project URL, https://xxxx.supabase.co" autocomplete="off">
+      <input id="sbKey" class="sb-in" placeholder="anon public key" autocomplete="off">
+      <button class="bk primary" id="sbSave">Подключить</button>`;
+    document.getElementById("sbSave").onclick = () => {
+      const url = document.getElementById("sbUrl").value.trim(), key = document.getElementById("sbKey").value.trim();
+      if (!/^https:\/\/.+/.test(url) || key.length < 20) { syncEl.textContent = "Проверьте адрес проекта и ключ"; return; }
+      cfg = {url, key}; lsSet(CFG, cfg); renderSync();
+    };
+  } else if (!session){
+    syncEl.textContent = "Войдите, чтобы данные синхронизировались.";
+    sb.innerHTML = pendingEmail ? `<p class="sb-note">Код отправлен на ${pendingEmail.replace(/</g,"")}. Введите его или откройте ссылку из письма.</p>
+      <input id="sbCode" class="sb-in" inputmode="numeric" autocomplete="one-time-code" placeholder="Код из письма">
+      <div class="backup-row"><button class="bk primary" id="sbVerify">Войти</button><button class="bk" id="sbBack">Другой email</button></div>`
+    : `<input id="sbEmail" class="sb-in" type="email" autocomplete="email" placeholder="Ваш email">
+      <div class="backup-row"><button class="bk primary" id="sbSend">Получить код</button><button class="bk" id="sbReset">Сменить проект</button></div>`;
+    if (pendingEmail){
+      document.getElementById("sbVerify").onclick = async () => {
+        const token = document.getElementById("sbCode").value.trim(); if (!token) return;
+        try { takeSession(await api("/auth/v1/verify", {method:"POST", body: JSON.stringify({type:"email", email: pendingEmail, token})}, false));
+              pendingEmail = ""; renderSync(); pull(); }
+        catch(e){ syncEl.textContent = "Код не подошёл: " + e.message; }
+      };
+      document.getElementById("sbBack").onclick = () => { pendingEmail = ""; renderSync(); };
+    } else {
+      document.getElementById("sbSend").onclick = async () => {
+        const email = document.getElementById("sbEmail").value.trim(); if (!email.includes("@")) return;
+        try { await api("/auth/v1/otp?redirect_to=" + encodeURIComponent(location.href.split("#")[0]), {method:"POST", body: JSON.stringify({email, create_user: true})}, false);
+              pendingEmail = email; renderSync(); }
+        catch(e){ syncEl.textContent = "Не удалось отправить письмо: " + e.message; }
+      };
+      document.getElementById("sbReset").onclick = () => { cfg = null; lsSet(CFG, null); renderSync(); };
+    }
+  } else {
+    sb.innerHTML = `<p class="sb-note">Вход: ${(session.email||"").replace(/</g,"")}</p>
+      <div class="backup-row"><button class="bk" id="sbSync">Синхронизировать</button><button class="bk" id="sbOut">Выйти</button></div>`;
+    document.getElementById("sbSync").onclick = pull;
+    document.getElementById("sbOut").onclick = () => { session = null; lsSet(SES, null); renderSync(); };
+  }
+}
+
+// Magic link return: #access_token=...&refresh_token=...
+(function(){
+  if (!location.hash.includes("access_token=")) return;
+  const p = new URLSearchParams(location.hash.slice(1));
+  try { takeSession({access_token: p.get("access_token"), refresh_token: p.get("refresh_token"), expires_in: +p.get("expires_in")}); } catch(e){}
+  history.replaceState(null, "", location.pathname + location.search);
+})();
+
+renderSync();
+pull();
+document.addEventListener("visibilitychange", () => { if (!document.hidden) pull(); });
+
+// Backup to file
+document.getElementById("exp").onclick = () => {
+  const blob = new Blob([JSON.stringify(state)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = "zaryadka-" + todayISO() + ".json";
+  document.body.appendChild(a); a.click(); a.remove();
+};
+document.getElementById("imp").onchange = ev => {
+  const f = ev.target.files[0]; if (!f) return;
+  f.text().then(t => {
+    const d = JSON.parse(t); if (!d || !d.days) throw 0;
+    state.days = merge(d.days); save(); render();
+    syncEl.textContent = "Данные восстановлены из копии";
+  }).catch(() => syncEl.textContent = "Этот файл не похож на копию трекера");
+  ev.target.value = "";
+};
+
+render();
+// Roll over to the new day if the page stays open overnight
+let openedOn = todayISO();
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) return;
+  const t = todayISO();
+  if (t !== openedOn) { if (cur === openedOn) cur = t; openedOn = t; render(); }
+});
+</script>
+
+</body>
+</html>
