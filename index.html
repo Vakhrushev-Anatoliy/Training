@@ -515,8 +515,9 @@ function renderSync(){
     sb.innerHTML = pendingEmail ? `<p class="sb-note">Код отправлен на ${pendingEmail.replace(/</g,"")}. Введите его или откройте ссылку из письма.</p>
       <input id="sbCode" class="sb-in" inputmode="numeric" autocomplete="one-time-code" placeholder="Код из письма">
       <div class="backup-row"><button class="bk primary" id="sbVerify">Войти</button><button class="bk" id="sbBack">Другой email</button></div>`
-    : `<input id="sbEmail" class="sb-in" type="email" autocomplete="email" placeholder="Ваш email">
-      <div class="backup-row"><button class="bk primary" id="sbSend">Получить код</button><button class="bk" id="sbReset">Сменить проект</button></div>`;
+    : `<input id="sbEmail" class="sb-in" type="email" autocomplete="username" placeholder="Ваш email">
+      <input id="sbPass" class="sb-in" type="password" autocomplete="current-password" placeholder="Пароль (если уже задан)">
+      <div class="backup-row"><button class="bk primary" id="sbLogin">Войти по паролю</button><button class="bk" id="sbSend">Ссылка на почту</button><button class="bk" id="sbReset">Сменить проект</button></div>`;
     if (pendingEmail){
       document.getElementById("sbVerify").onclick = async () => {
         const token = document.getElementById("sbCode").value.trim(); if (!token) return;
@@ -526,6 +527,13 @@ function renderSync(){
       };
       document.getElementById("sbBack").onclick = () => { pendingEmail = ""; renderSync(); };
     } else {
+      document.getElementById("sbLogin").onclick = async () => {
+        const email = document.getElementById("sbEmail").value.trim(), password = document.getElementById("sbPass").value;
+        if (!email.includes("@") || !password) { syncEl.textContent = "Введите email и пароль"; return; }
+        try { pendingEmail = email; takeSession(await api("/auth/v1/token?grant_type=password", {method:"POST", body: JSON.stringify({email, password})}, false));
+              pendingEmail = ""; renderSync(); pull(); }
+        catch(e){ pendingEmail = ""; syncEl.textContent = "Не удалось войти: " + (/invalid/i.test(e.message) ? "неверный email или пароль" : e.message); }
+      };
       document.getElementById("sbSend").onclick = async () => {
         const email = document.getElementById("sbEmail").value.trim(); if (!email.includes("@")) return;
         try { await api("/auth/v1/otp?redirect_to=" + encodeURIComponent(location.href.split("#")[0]), {method:"POST", body: JSON.stringify({email, create_user: true})}, false);
@@ -536,8 +544,19 @@ function renderSync(){
     }
   } else {
     sb.innerHTML = `<p class="sb-note">Вход: ${(session.email||"").replace(/</g,"")}</p>
-      <div class="backup-row"><button class="bk" id="sbSync">Синхронизировать</button><button class="bk" id="sbOut">Выйти</button></div>`;
+      <div class="backup-row"><button class="bk" id="sbSync">Синхронизировать</button><button class="bk" id="sbOut">Выйти</button></div>
+      <p class="sb-note">Пароль для входа с иконки на экране «Домой» (там ссылка из письма не работает):</p>
+      <input id="sbNewPass" class="sb-in" type="password" autocomplete="new-password" placeholder="Новый пароль, от 6 символов">
+      <div class="backup-row"><button class="bk" id="sbSetPass">Задать пароль</button></div>`;
     document.getElementById("sbSync").onclick = pull;
+    document.getElementById("sbSetPass").onclick = async () => {
+      const password = document.getElementById("sbNewPass").value;
+      if (password.length < 6) { syncEl.textContent = "Пароль — минимум 6 символов"; return; }
+      if (!await ensureFresh()) return;
+      try { await api("/auth/v1/user", {method:"PUT", body: JSON.stringify({password})});
+            document.getElementById("sbNewPass").value = ""; syncEl.textContent = "Пароль задан. Теперь можно входить по email и паролю."; }
+      catch(e){ syncEl.textContent = "Не удалось задать пароль: " + e.message; }
+    };
     document.getElementById("sbOut").onclick = () => { session = null; lsSet(SES, null); renderSync(); };
   }
 }
