@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#2E56D8">
+<meta name="app-version" content="2026-10-04.6">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Тренировки">
@@ -217,6 +218,7 @@ details.zones table{margin-top:8px;font-size:12px}
 </div>
 <div id="watch" hidden></div>
 <div id="toast" role="status"></div>
+<p id="appVer" style="text-align:center;font-size:11.5px;color:var(--muted);margin:-24px 0 24px"></p>
 
 <script>
 const EX = [
@@ -670,6 +672,31 @@ document.getElementById("imp").onchange = ev => {
 };
 
 render();
+
+// ===== Автообновление (иконка на экране «Домой» не перезагружает страницу сама) =====
+const APP_VER = document.querySelector('meta[name="app-version"]').content;
+document.getElementById("appVer").innerHTML = `Версия ${APP_VER} · <a href="#" id="chkUpd" style="color:inherit">проверить обновления</a>`;
+async function checkUpdate(manual){
+  try {
+    const r = await fetch(location.pathname + "?check=" + Date.now(), {cache: "no-store"});
+    const m = (await r.text()).match(/name="app-version" content="([^"]+)"/);
+    if (!m) return;
+    if (m[1] !== APP_VER) {
+      const key = "upd-tried-" + m[1];
+      if (!manual && sessionStorage.getItem(key)) return;   // защита от зацикливания
+      sessionStorage.setItem(key, "1");
+      try { localStorage.setItem(LS, JSON.stringify(state)); } catch(e){}
+      const t = document.getElementById("toast"); t.innerHTML = "Загружаю новую версию…"; t.classList.add("show");
+      setTimeout(() => location.replace(location.pathname + "?v=" + encodeURIComponent(m[1])), 400);
+    } else if (manual) {
+      const t = document.getElementById("toast"); t.innerHTML = "У вас последняя версия"; t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), 2000);
+    }
+  } catch(e){}
+}
+document.getElementById("chkUpd").onclick = ev => { ev.preventDefault(); checkUpdate(true); };
+checkUpdate(false);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) checkUpdate(false); });
 // Roll over to the new day if the page stays open overnight
 let openedOn = todayISO();
 document.addEventListener("visibilitychange", () => {
