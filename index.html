@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#2E56D8">
-<meta name="app-version" content="2026-10-24.1">
+<meta name="app-version" content="2026-10-24.2">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Тренировки">
@@ -184,7 +184,7 @@ details.zones table{margin-top:8px;font-size:12px}
   <div class="sec-h"><h2>Зарядка</h2><span id="zInfo"></span></div>
   <div id="udar"></div>
   <div class="summary">
-    <div class="stat"><b class="num" id="sDone">0/14</b><span>норма выполнена</span></div>
+    <div class="stat"><b class="num" id="sDone">0/16</b><span>норма выполнена</span></div>
     <div class="stat"><b class="num" id="sTotal">0</b><span>повторов за день</span></div>
     <div class="stat"><b class="num" id="sStreak">0</b><span>ударный режим</span></div>
   </div>
@@ -222,7 +222,8 @@ details.zones table{margin-top:8px;font-size:12px}
 
 <script>
 const EX = [
-  {id:"squat",  name:"Глубокие приседания", hint:"Держитесь за дверной проём"},
+  {id:"pullup", name:"Подтягивания", hint:"Широкий хват, подбородок выше перекладины. Пока не выходит — считайте негативы: запрыгнуть и медленно опускаться 3–5 сек"},
+  {id:"squat",  name:"Приседания", hint:"Ноги на ширине плеч, бёдра до параллели с полом, пятки не отрывать"},
   {id:"bridge", name:"Мостик", hint:"У стены"},
   {id:"pushup", name:"Глубокие отжимания", hint:"Можно с подушкой под колени"},
   {id:"dips",   name:"Отжимания на трицепс от стула", hint:"Спиной к стулу, руки на краю сиденья, локти назад. Опускайтесь до угла 90° в локтях"},
@@ -232,10 +233,11 @@ const EX = [
   {id:"crab",      since:"2026-10-24", name:"Обратная планка: рука к противоположной стопе", hint:"Упор сзади на руки и стопы, таз поднят. Правой рукой тянуться к левой стопе, затем левой к правой. Считайте каждое касание"},
   {id:"march",     since:"2026-10-24", name:"Поочерёдный подъём коленей в мостике", hint:"Плечи на полу, колени согнуты, таз поднят. Поочерёдно подтягивать колени к груди, таз не опускать. Считайте каждое колено"},
   {id:"plankknee", since:"2026-10-24", name:"Планка: локти — прямые руки + колено к руке", hint:"Из планки на локтях поочерёдно встать на прямые руки, наверху подтянуть колено через бок к руке (правое, затем левое), вернуться на локти. Один повтор — полный цикл"},
-  {id:"hipcircle", since:"2026-10-24", sides:true, labels:["Влево","Вправо"], name:"Круги тазом стоя", hint:"Ноги на ширине плеч, руки на поясе, плечи неподвижны. Большие медленные круги тазом в одну, затем в другую сторону"},
+  {id:"wipers",    since:"2026-10-25", name:"«Дворники» 90/90", hint:"Сидя, руки сзади на полу, колени согнуты, стопы шире плеч. Опустить оба колена вбок до пола, затем перекинуть в другую сторону. Считайте каждый перенос"},
+  {id:"legover",   since:"2026-10-25", sides:true, name:"Перенос ноги через колено сидя", hint:"Сидя, руки сзади. Одна нога согнута, стопа на полу, другая прямая. Поднять прямую ногу и перенести через колено согнутой, вернуть. Считайте на каждую ногу"},
+  {id:"kneelthrust", since:"2026-10-25", name:"Вынос таза вперёд с колен", hint:"Сидя на пятках, руки сзади на полу. Вытолкнуть таз вперёд и вверх, сжать ягодицы, прогнуться, вернуться на пятки"},
   {id:"kegel",     since:"2026-10-24", name:"Сжатие мышц тазового дна (Кегель)", hint:"Сжать мышцы, как будто останавливаете мочеиспускание, держать 3 сек, расслабить на 3 сек. Ягодицы и пресс не напрягать. Один повтор — сжатие и расслабление"},
   {id:"calf",   name:"Подъём на носки стоя", hint:"Медленно вверх, пауза наверху, медленно вниз. Можно держаться за стену"},
-  {id:"pullup", name:"Подтягивания", hint:"Широкий хват, подбородок выше перекладины. Пока не выходит — считайте негативы: запрыгнуть и медленно опускаться 3–5 сек"},
 ];
 const KEYS = EX.flatMap(e => e.sides ? [e.id+"_L", e.id+"_R"] : [e.id]);
 const LS = "zaryadka-v1";
@@ -476,7 +478,7 @@ function renderHist(){
   const days = Object.keys(state.days).filter(d => dayHasData(state.days[d])).sort().reverse().slice(0, 30);
   const box = document.getElementById("hist");
   if (!days.length){ box.innerHTML = `<div class="empty">Здесь появятся ваши результаты по дням. Отметьте первое упражнение выше.</div>`; return; }
-  const cols = [["Прис.","squat"],["Мост","bridge"],["Отж.","pushup"],["Трицепс","dips"],["Пресс","abs"],["Бок. Л","sideplank_L"],["Бок. П","sideplank_R"],["Таз","hipraise"],["Рука-стопа","crab"],["Колени","march"],["Планка","plankknee"],["Круги Л","hipcircle_L"],["Круги П","hipcircle_R"],["Кегель","kegel"],["Носки","calf"],["Подт.","pullup"]];
+  const cols = [["Подт.","pullup"],["Прис.","squat"],["Мост","bridge"],["Отж.","pushup"],["Трицепс","dips"],["Пресс","abs"],["Бок. Л","sideplank_L"],["Бок. П","sideplank_R"],["Таз","hipraise"],["Рука-стопа","crab"],["Колени","march"],["Планка","plankknee"],["Дворники","wipers"],["Перенос Л","legover_L"],["Перенос П","legover_R"],["С колен","kneelthrust"],["Кегель","kegel"],["Носки","calf"]];
   box.innerHTML = `<table><thead><tr><th>Дата</th>${cols.map(c=>`<th>${c[0]}</th>`).join("")}<th>Бассейн</th><th>Резина</th></tr></thead><tbody>${
     days.map(d => `<tr><td>${fmtShort(d)}</td>${cols.map(c => `<td>${state.days[d][c[1]]||"–"}</td>`).join("")}<td>${swimCell(state.days[d])}</td><td>${RB.filter(r=>state.days[d][r.id]).length||"–"}</td></tr>`).join("")
   }</tbody></table>`;
