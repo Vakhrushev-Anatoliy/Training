@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#2E56D8">
-<meta name="app-version" content="2026-10-04.6">
+<meta name="app-version" content="2026-10-24.1">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Тренировки">
@@ -62,7 +62,7 @@ header{display:flex;flex-direction:column;gap:10px}
 .ts.new{color:var(--ok);background:var(--ok-soft)}
 
 .side{display:flex;align-items:center;gap:10px}
-.side-label{width:58px;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.side-label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
 .side-label.none{display:none}
 .counter{display:flex;align-items:center;gap:6px}
 .counter button{width:46px;height:46px;border-radius:12px;border:1px solid var(--line);background:var(--bg);font-size:22px;font-weight:700}
@@ -184,7 +184,7 @@ details.zones table{margin-top:8px;font-size:12px}
   <div class="sec-h"><h2>Зарядка</h2><span id="zInfo"></span></div>
   <div id="udar"></div>
   <div class="summary">
-    <div class="stat"><b class="num" id="sDone">0/9</b><span>норма выполнена</span></div>
+    <div class="stat"><b class="num" id="sDone">0/14</b><span>норма выполнена</span></div>
     <div class="stat"><b class="num" id="sTotal">0</b><span>повторов за день</span></div>
     <div class="stat"><b class="num" id="sStreak">0</b><span>ударный режим</span></div>
   </div>
@@ -227,8 +227,13 @@ const EX = [
   {id:"pushup", name:"Глубокие отжимания", hint:"Можно с подушкой под колени"},
   {id:"dips",   name:"Отжимания на трицепс от стула", hint:"Спиной к стулу, руки на краю сиденья, локти назад. Опускайтесь до угла 90° в локтях"},
   {id:"abs",    name:"Протяжки на пресс", hint:""},
-  {id:"bend",   name:"Наклоны у стены", hint:"На левую и правую сторону", sides:true},
-  {id:"glute",  name:"Закрутки на ягодицы", hint:"У стены, на левую и правую ногу", sides:true},
+  {id:"sideplank", since:"2026-10-24", sides:true, name:"Подъёмы таза в боковой планке", hint:"На локте, корпус прямой. Опустить таз почти до пола и поднять выше линии тела. На левую и правую сторону"},
+  {id:"hipraise",  since:"2026-10-24", name:"Подъём таза лёжа", hint:"Лёжа на спине, плечи и пятки на полу. Поднять таз до прямой линии плечи — колени, сжать ягодицы, пауза 1–2 сек, опустить"},
+  {id:"crab",      since:"2026-10-24", name:"Обратная планка: рука к противоположной стопе", hint:"Упор сзади на руки и стопы, таз поднят. Правой рукой тянуться к левой стопе, затем левой к правой. Считайте каждое касание"},
+  {id:"march",     since:"2026-10-24", name:"Поочерёдный подъём коленей в мостике", hint:"Плечи на полу, колени согнуты, таз поднят. Поочерёдно подтягивать колени к груди, таз не опускать. Считайте каждое колено"},
+  {id:"plankknee", since:"2026-10-24", name:"Планка: локти — прямые руки + колено к руке", hint:"Из планки на локтях поочерёдно встать на прямые руки, наверху подтянуть колено через бок к руке (правое, затем левое), вернуться на локти. Один повтор — полный цикл"},
+  {id:"hipcircle", since:"2026-10-24", sides:true, labels:["Влево","Вправо"], name:"Круги тазом стоя", hint:"Ноги на ширине плеч, руки на поясе, плечи неподвижны. Большие медленные круги тазом в одну, затем в другую сторону"},
+  {id:"kegel",     since:"2026-10-24", name:"Сжатие мышц тазового дна (Кегель)", hint:"Сжать мышцы, как будто останавливаете мочеиспускание, держать 3 сек, расслабить на 3 сек. Ягодицы и пресс не напрягать. Один повтор — сжатие и расслабление"},
   {id:"calf",   name:"Подъём на носки стоя", hint:"Медленно вверх, пауза наверху, медленно вниз. Можно держаться за стену"},
   {id:"pullup", name:"Подтягивания", hint:"Широкий хват, подбородок выше перекладины. Пока не выходит — считайте негативы: запрыгнуть и медленно опускаться 3–5 сек"},
 ];
@@ -262,8 +267,9 @@ function exDone(e, day){
 const dayHasData = o => KEYS.some(k => o[k] > 0) || RB.some(r => o[r.id]) || (o.swim && (o.swim.done || o.swim.rpe || o.swim.note));
 const hasAny = day => state.days[day] && KEYS.some(k => state.days[day][k] > 0);
 
-// Ударный режим: день засчитан, если записаны все 9 упражнений (обе стороны там, где они есть)
-const zDone = day => !!state.days[day] && KEYS.every(k => state.days[day][k] > 0);
+// Ударный режим: день засчитан, если записаны все упражнения, которые были в программе в этот день (обе стороны там, где они есть)
+const keysOn = day => EX.filter(e => !e.since || e.since <= day).flatMap(e => e.sides ? [e.id+"_L", e.id+"_R"] : [e.id]);
+const zDone = day => !!state.days[day] && keysOn(day).every(k => state.days[day][k] > 0);
 function streak(){
   let d = zDone(todayISO()) ? todayISO() : shift(todayISO(), -1), n = 0;
   while (zDone(d)) { n++; d = shift(d, -1); }
@@ -283,7 +289,7 @@ function renderUdar(){
   const next = LEVELS.find(l => l[0] > n), prevL = [...LEVELS].reverse().find(l => l[0] <= n);
   const base = prevL ? prevL[0] : 0, pct = next ? Math.round((n - base) / (next[0] - base) * 100) : 100;
   let msg;
-  if (n === 0) msg = "Сделай все 9 упражнений сегодня — и ударный режим запущен.";
+  if (n === 0) msg = "Сделай все упражнения сегодня — и ударный режим запущен.";
   else if (!doneToday) msg = `Сегодня ещё не отмечено. Сделай зарядку, чтобы не потерять ${n} ${dayWord(n)}!`;
   else if (prevL && n === prevL[0]) msg = `Новый уровень: «${prevL[1]}»!`;
   else if (n === best && n > 1) msg = "Это твой лучший результат. Так держать!";
@@ -324,12 +330,12 @@ function setVal(key, v){
 function sideRow(e, key, label){
   const t = target(key, cur), v = val(key, cur);
   return `<div class="side">
-    <span class="side-label ${label?"":"none"}">${label}</span>
     <div class="counter">
       <button data-k="${key}" data-d="-1" aria-label="Минус">−</button>
       <input id="in_${key}" data-k="${key}" type="number" inputmode="numeric" min="0" value="${v||""}" placeholder="0" aria-label="${e.name} ${label}">
       <button data-k="${key}" data-d="1" aria-label="Плюс">+</button>
     </div>
+    <span class="side-label ${label?"":"none"}">${label}</span>
     <div class="target" id="tg_${key}">${t==null ? "первый раз:<b>до отказа</b>" : `цель:<b class="num">${t}</b>`}</div>
   </div>`;
 }
@@ -443,7 +449,7 @@ function render(){
         <span class="ex-n">${i+1}</span>
         <div class="ex-title"><h2>${e.name}</h2>${e.hint?`<p>${e.hint}</p>`:""}</div>
       </div>
-      ${e.sides ? sideRow(e, e.id+"_L", "Левая") + sideRow(e, e.id+"_R", "Правая") : sideRow(e, e.id, "")}
+      ${e.sides ? sideRow(e, e.id+"_L", (e.labels||["Левая","Правая"])[0]) + sideRow(e, e.id+"_R", (e.labels||["Левая","Правая"])[1]) : sideRow(e, e.id, "")}
     </article>`).join("");
   renderStatus(); renderHist();
 }
@@ -470,7 +476,7 @@ function renderHist(){
   const days = Object.keys(state.days).filter(d => dayHasData(state.days[d])).sort().reverse().slice(0, 30);
   const box = document.getElementById("hist");
   if (!days.length){ box.innerHTML = `<div class="empty">Здесь появятся ваши результаты по дням. Отметьте первое упражнение выше.</div>`; return; }
-  const cols = [["Прис.","squat"],["Мост","bridge"],["Отж.","pushup"],["Трицепс","dips"],["Пресс","abs"],["Накл. Л","bend_L"],["Накл. П","bend_R"],["Ягод. Л","glute_L"],["Ягод. П","glute_R"],["Носки","calf"],["Подт.","pullup"]];
+  const cols = [["Прис.","squat"],["Мост","bridge"],["Отж.","pushup"],["Трицепс","dips"],["Пресс","abs"],["Бок. Л","sideplank_L"],["Бок. П","sideplank_R"],["Таз","hipraise"],["Рука-стопа","crab"],["Колени","march"],["Планка","plankknee"],["Круги Л","hipcircle_L"],["Круги П","hipcircle_R"],["Кегель","kegel"],["Носки","calf"],["Подт.","pullup"]];
   box.innerHTML = `<table><thead><tr><th>Дата</th>${cols.map(c=>`<th>${c[0]}</th>`).join("")}<th>Бассейн</th><th>Резина</th></tr></thead><tbody>${
     days.map(d => `<tr><td>${fmtShort(d)}</td>${cols.map(c => `<td>${state.days[d][c[1]]||"–"}</td>`).join("")}<td>${swimCell(state.days[d])}</td><td>${RB.filter(r=>state.days[d][r.id]).length||"–"}</td></tr>`).join("")
   }</tbody></table>`;
