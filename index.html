@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#2E56D8">
-<meta name="app-version" content="2026-10-26.1">
+<meta name="app-version" content="2026-10-26.2">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Тренировки">
@@ -54,6 +54,7 @@ header{display:flex;flex-direction:column;gap:10px}
 .ex{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px}
 .ex.done{border-color:var(--ok);box-shadow:inset 4px 0 0 var(--ok)}
 .ex-head{display:flex;gap:10px;align-items:baseline}
+.dayab{align-self:flex-start;font-size:13px;font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:10px;padding:6px 12px}
 .ex-n{font-family:var(--display);font-size:12px;color:var(--muted);min-width:18px}
 .ex-title{flex:1;min-width:0}
 .ex-title h2{margin:0;font-size:16px;font-weight:700}
@@ -184,7 +185,7 @@ details.zones table{margin-top:8px;font-size:12px}
   <div class="sec-h"><h2>Зарядка</h2><span id="zInfo"></span></div>
   <div id="udar"></div>
   <div class="summary">
-    <div class="stat"><b class="num" id="sDone">0/15</b><span>норма выполнена</span></div>
+    <div class="stat"><b class="num" id="sDone">0/9</b><span>норма выполнена</span></div>
     <div class="stat"><b class="num" id="sTotal">0</b><span>повторов за день</span></div>
     <div class="stat"><b class="num" id="sStreak">0</b><span>ударный режим</span></div>
   </div>
@@ -222,21 +223,25 @@ details.zones table{margin-top:8px;font-size:12px}
 
 <script>
 const EX = [
-  {id:"pullup", name:"Подтягивания", hint:"Широкий хват, подбородок выше перекладины. Пока не выходит — считайте негативы: запрыгнуть и медленно опускаться 3–5 сек"},
-  {id:"squat",  name:"Приседания", hint:"Ноги на ширине плеч, бёдра до параллели с полом, пятки не отрывать"},
-  {id:"plankknee", since:"2026-10-24", name:"Планка: локти — прямые руки + колено к руке", hint:"Из планки на локтях поочерёдно встать на прямые руки, наверху подтянуть колено через бок к руке (правое, затем левое), вернуться на локти. Один повтор — полный цикл"},
-  {id:"bridge", name:"Мостик", hint:"У стены"},
-  {id:"pushup", name:"Глубокие отжимания", hint:"Можно с подушкой под колени"},
-  {id:"dips",   name:"Отжимания на трицепс от стула", hint:"Спиной к стулу, руки на краю сиденья, локти назад. Опускайтесь до угла 90° в локтях"},
-  {id:"abs",    name:"Протяжки на пресс", hint:""},
-  {id:"sideplank", since:"2026-10-24", sides:true, name:"Подъёмы таза в боковой планке", hint:"На локте, корпус прямой. Опустить таз почти до пола и поднять выше линии тела. На левую и правую сторону"},
-  {id:"hipraise",  since:"2026-10-24", name:"Подъём таза лёжа", hint:"Лёжа на спине, плечи и пятки на полу. Поднять таз до прямой линии плечи — колени, сжать ягодицы, пауза 1–2 сек, опустить"},
-  {id:"crab",      since:"2026-10-24", name:"Обратная планка: рука к противоположной стопе", hint:"Упор сзади на руки и стопы, таз поднят. Правой рукой тянуться к левой стопе, затем левой к правой. Считайте каждое касание"},
-  {id:"wipers",    since:"2026-10-25", name:"«Дворники» 90/90", hint:"Сидя, руки сзади на полу, колени согнуты, стопы шире плеч. Опустить оба колена вбок до пола, затем перекинуть в другую сторону. Считайте каждый перенос"},
-  {id:"kneelthrust", since:"2026-10-25", name:"Вынос таза вперёд с колен", hint:"Сидя на пятках, руки сзади на полу. Вытолкнуть таз вперёд и вверх, сжать ягодицы, прогнуться, вернуться на пятки"},
-  {id:"kegel",     since:"2026-10-24", name:"Сжатие мышц тазового дна (Кегель)", hint:"Сжать мышцы, как будто останавливаете мочеиспускание, держать 3 сек, расслабить на 3 сек. Ягодицы и пресс не напрягать. Один повтор — сжатие и расслабление"},
-  {id:"tabletop", since:"2026-10-27", name:"Подъём таза до горизонтали (упор сзади)", hint:"Сидя, стопы на полу, колени согнуты, ладони на полу сзади, руки прямые. Поднять таз до горизонтали — колени, таз и плечи на одной линии, пауза 1–2 сек, опустить"},
-  {id:"calf",   name:"Подъём на носки стоя", hint:"Медленно вверх, пауза наверху, медленно вниз. Можно держаться за стену"},
+  // День А — верх тела и пресс
+  {id:"pullup", days:"A", name:"Подтягивания", hint:"Широкий хват, подбородок выше перекладины. Пока не выходит — считайте негативы: запрыгнуть и медленно опускаться 3–5 сек"},
+  {id:"pushup", days:"A", name:"Глубокие отжимания", hint:"Можно с подушкой под колени"},
+  {id:"dips", days:"A",   name:"Отжимания на трицепс от стула", hint:"Спиной к стулу, руки на краю сиденья, локти назад. Опускайтесь до угла 90° в локтях"},
+  {id:"plankknee", days:"A", since:"2026-10-24", name:"Планка: локти — прямые руки + колено к руке", hint:"Из планки на локтях поочерёдно встать на прямые руки, наверху подтянуть колено через бок к руке (правое, затем левое), вернуться на локти. Один повтор — полный цикл"},
+  {id:"plankhip", days:"A", since:"2026-10-27", name:"Планка на локтях: подъём таза", hint:"Планка на локтях, ладони сцеплены на затылке. Поднять таз вверх «домиком», затем опустить до прямой линии корпуса. Поясницу не проваливать"},
+  {id:"abs", days:"A",    name:"Протяжки на пресс", hint:""},
+  {id:"sideplank", days:"A", since:"2026-10-24", sides:true, name:"Подъёмы таза в боковой планке", hint:"На локте, корпус прямой. Опустить таз почти до пола и поднять выше линии тела. На левую и правую сторону"},
+  // День Б — ноги и ягодицы
+  {id:"squat", days:"B",  name:"Приседания", hint:"Ноги на ширине плеч, бёдра до параллели с полом, пятки не отрывать"},
+  {id:"bridge", days:"B", name:"Мостик", hint:"У стены"},
+  {id:"hipraise", days:"B",  since:"2026-10-24", name:"Подъём таза лёжа", hint:"Лёжа на спине, плечи и пятки на полу. Поднять таз до прямой линии плечи — колени, сжать ягодицы, пауза 1–2 сек, опустить"},
+  {id:"crab", days:"B",      since:"2026-10-24", name:"Обратная планка: рука к противоположной стопе", hint:"Упор сзади на руки и стопы, таз поднят. Правой рукой тянуться к левой стопе, затем левой к правой. Считайте каждое касание"},
+  {id:"tabletop", days:"B", since:"2026-10-27", name:"Подъём таза до горизонтали (упор сзади)", hint:"Сидя, стопы на полу, колени согнуты, ладони на полу сзади, руки прямые. Поднять таз до горизонтали — колени, таз и плечи на одной линии, пауза 1–2 сек, опустить"},
+  {id:"kneelthrust", days:"B", since:"2026-10-25", name:"Вынос таза вперёд с колен", hint:"Сидя на пятках, руки сзади на полу. Вытолкнуть таз вперёд и вверх, сжать ягодицы, прогнуться, вернуться на пятки"},
+  {id:"calf", days:"B",   name:"Подъём на носки стоя", hint:"Медленно вверх, пауза наверху, медленно вниз. Можно держаться за стену"},
+  // Каждый день
+  {id:"wipers", days:"AB",    since:"2026-10-25", name:"«Дворники» 90/90", hint:"Сидя, руки сзади на полу, колени согнуты, стопы шире плеч. Опустить оба колена вбок до пола, затем перекинуть в другую сторону. Считайте каждый перенос"},
+  {id:"kegel", days:"AB",     since:"2026-10-24", name:"Сжатие мышц тазового дна (Кегель)", hint:"Сжать мышцы, как будто останавливаете мочеиспускание, держать 3 сек, расслабить на 3 сек. Ягодицы и пресс не напрягать. Один повтор — сжатие и расслабление"},
 ];
 const KEYS = EX.flatMap(e => e.sides ? [e.id+"_L", e.id+"_R"] : [e.id]);
 const LS = "zaryadka-v1";
@@ -269,7 +274,12 @@ const dayHasData = o => KEYS.some(k => o[k] > 0) || RB.some(r => o[r.id]) || (o.
 const hasAny = day => state.days[day] && KEYS.some(k => state.days[day][k] > 0);
 
 // Ударный режим: день засчитан, если записаны все упражнения, которые были в программе в этот день (обе стороны там, где они есть)
-const keysOn = day => EX.filter(e => !e.since || e.since <= day).flatMap(e => e.sides ? [e.id+"_L", e.id+"_R"] : [e.id]);
+// Чередование дней А/Б с 27.10.2026: чётный день от старта — А, нечётный — Б
+const AB_START = "2026-10-27";
+const dayType = day => { if (day < AB_START) return null; const n = Math.round((new Date(day+"T12:00:00") - new Date(AB_START+"T12:00:00")) / 86400000); return n % 2 === 0 ? "A" : "B"; };
+const AB_NAME = {A: "День А · верх тела и пресс", B: "День Б · ноги и ягодицы"};
+const exShow = day => EX.filter(e => !e.days || !dayType(day) || e.days.includes(dayType(day)));
+const keysOn = day => exShow(day).filter(e => !e.since || e.since <= day).flatMap(e => e.sides ? [e.id+"_L", e.id+"_R"] : [e.id]);
 const zDone = day => !!state.days[day] && keysOn(day).every(k => state.days[day][k] > 0);
 function streak(){
   let d = zDone(todayISO()) ? todayISO() : shift(todayISO(), -1), n = 0;
@@ -444,7 +454,8 @@ function render(){
   document.getElementById("next").disabled = false;
   document.body.classList.toggle("future", cur > todayISO());
   renderSwim(); renderRubber();
-  document.getElementById("list").innerHTML = EX.map((e,i) => `
+  const dt = dayType(cur);
+  document.getElementById("list").innerHTML = (dt ? `<div class="dayab">${AB_NAME[dt]}</div>` : "") + exShow(cur).map((e,i) => `
     <article class="ex" id="ex_${e.id}">
       <div class="ex-head">
         <span class="ex-n">${i+1}</span>
@@ -457,7 +468,8 @@ function render(){
 
 function renderStatus(){
   let done = 0, total = 0;
-  EX.forEach(e => {
+  const shown = exShow(cur);
+  shown.forEach(e => {
     const ok = exDone(e, cur); if (ok) done++;
     document.getElementById("ex_"+e.id)?.classList.toggle("done", ok);
   });
@@ -466,18 +478,18 @@ function renderStatus(){
     const t = target(k, cur), el = document.getElementById("tg_"+k);
     if (el) el.classList.toggle("hit", t != null && val(k, cur) >= t);
   });
-  document.getElementById("sDone").textContent = done+"/"+EX.length;
+  document.getElementById("sDone").textContent = done+"/"+shown.length;
   document.getElementById("sTotal").textContent = total;
   document.getElementById("sStreak").textContent = streak();
   renderUdar();
-  document.getElementById("bar").style.width = (done/EX.length*100)+"%";
+  document.getElementById("bar").style.width = (done/shown.length*100)+"%";
 }
 
 function renderHist(){
   const days = Object.keys(state.days).filter(d => dayHasData(state.days[d])).sort().reverse().slice(0, 30);
   const box = document.getElementById("hist");
   if (!days.length){ box.innerHTML = `<div class="empty">Здесь появятся ваши результаты по дням. Отметьте первое упражнение выше.</div>`; return; }
-  const cols = [["Подт.","pullup"],["Прис.","squat"],["Планка","plankknee"],["Мост","bridge"],["Отж.","pushup"],["Трицепс","dips"],["Пресс","abs"],["Бок. Л","sideplank_L"],["Бок. П","sideplank_R"],["Таз","hipraise"],["Рука-стопа","crab"],["Дворники","wipers"],["С колен","kneelthrust"],["Кегель","kegel"],["Стол","tabletop"],["Носки","calf"]];
+  const cols = [["Подт.","pullup"],["Отж.","pushup"],["Трицепс","dips"],["Планка","plankknee"],["Планка таз","plankhip"],["Пресс","abs"],["Бок. Л","sideplank_L"],["Бок. П","sideplank_R"],["Прис.","squat"],["Мост","bridge"],["Таз","hipraise"],["Рука-стопа","crab"],["Стол","tabletop"],["С колен","kneelthrust"],["Носки","calf"],["Дворники","wipers"],["Кегель","kegel"]];
   box.innerHTML = `<table><thead><tr><th>Дата</th>${cols.map(c=>`<th>${c[0]}</th>`).join("")}<th>Бассейн</th><th>Резина</th></tr></thead><tbody>${
     days.map(d => `<tr><td>${fmtShort(d)}</td>${cols.map(c => `<td>${state.days[d][c[1]]||"–"}</td>`).join("")}<td>${swimCell(state.days[d])}</td><td>${RB.filter(r=>state.days[d][r.id]).length||"–"}</td></tr>`).join("")
   }</tbody></table>`;
