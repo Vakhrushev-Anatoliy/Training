@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#2E56D8">
-<meta name="app-version" content="2026-11-07.1">
+<meta name="app-version" content="2026-11-07.2">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Тренировки">
@@ -147,6 +147,18 @@ tr:last-child td{border-bottom:none}
 .udar-badges span{font-size:11.5px;font-weight:700;border-radius:999px;padding:3px 9px;background:rgba(255,255,255,.22)}
 .udar-badges span.lock{opacity:.45}
 .udar.cold .udar-badges span{background:var(--bg);border:1px solid var(--line)}
+.sub-h{font-family:var(--display);font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:6px 2px -2px}
+.goal{margin:-4px 0 0;font-size:12px;color:var(--muted)}
+.srow{display:flex;align-items:center;gap:8px}
+.slab{width:18px;font-size:12px;font-weight:700;color:var(--muted)}
+.sets-in{display:flex;gap:6px;flex-wrap:wrap}
+.setin{width:56px;height:46px;text-align:center;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font-family:var(--display);font-size:18px;font-weight:700}
+.setin::placeholder{color:var(--muted);opacity:.55;font-weight:500}
+.setin.hit{border-color:var(--ok);background:var(--ok-soft);color:var(--ok)}
+.prev{margin:-4px 0 0 26px;font-size:12px;color:var(--muted)}
+.lvup{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:13px;font-weight:700;background:var(--accent-soft);color:var(--accent);border-radius:12px;padding:8px 10px}
+.lvup.ok{background:var(--ok-soft);color:var(--ok)}
+.future .setin{opacity:.4;pointer-events:none}
 #toast{position:fixed;left:50%;top:18px;transform:translate(-50%,-140%);z-index:60;max-width:92vw;background:#16202A;color:#fff;border-radius:16px;padding:14px 18px;font-weight:700;font-size:15px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.3);transition:transform .35s cubic-bezier(.2,.9,.3,1.3)}
 #toast.show{transform:translate(-50%,0)}
 #toast small{display:block;font-weight:600;font-size:12.5px;opacity:.8;margin-top:2px}
@@ -190,12 +202,12 @@ details.zones table{margin-top:8px;font-size:12px}
   <div class="sec-h"><h2>Зарядка</h2><span id="zInfo"></span></div>
   <div id="udar"></div>
   <div class="summary">
-    <div class="stat"><b class="num" id="sDone">0/9</b><span>норма выполнена</span></div>
-    <div class="stat"><b class="num" id="sTotal">0</b><span>повторов за день</span></div>
+    <div class="stat"><b class="num" id="sDone">0/9</b><span>упражнений</span></div>
+    <div class="stat"><b class="num" id="sTotal">0</b><span id="sTotalL">повторов за день</span></div>
     <div class="stat"><b class="num" id="sStreak">0</b><span>ударный режим</span></div>
   </div>
   <div class="progress"><i id="bar"></i></div>
-  <p class="rules">Каждое упражнение до мышечного отказа, отдых 10 сек. Цель — прошлый результат +1.</p>
+  <p class="rules" id="rules"></p>
   <div id="list" style="display:flex;flex-direction:column;gap:10px"></div>
 
   <div id="rubberBox"></div>
@@ -203,7 +215,7 @@ details.zones table{margin-top:8px;font-size:12px}
   <div class="sec-h"><h2>Бассейн</h2><span id="blockInfo"></span></div>
   <div class="card" id="swim"></div>
 
-  <button class="rest" id="rest">Отдых 10 сек</button>
+  <button class="rest" id="rest">Отдых 90 сек</button>
 
   <section class="hist">
     <h3>История</h3>
@@ -275,7 +287,7 @@ function exDone(e, day){
   const ks = e.sides ? [e.id+"_L", e.id+"_R"] : [e.id];
   return ks.every(k => { const v = val(k, day), t = target(k, day); return v > 0 && (t == null || v >= t); });
 }
-const dayHasData = o => KEYS.some(k => o[k] > 0) || RB.some(r => o[r.id]) || (o.swim && (o.swim.done || o.swim.rpe || o.swim.note)) || !!o._freeze || !!o._double;
+const dayHasData = o => KEYS.some(k => o[k] > 0) || RB.some(r => o[r.id]) || (o.swim && (o.swim.done || o.swim.rpe || o.swim.note)) || !!o._freeze || !!o._double || !!o.kegel || o.wip_L > 0 || o.wip_R > 0 || o.mbr > 0 || Object.keys(o).some(k => (k.startsWith("c_") && Array.isArray(o[k]) && o[k].some(v => v > 0)) || k.endsWith("_up"));
 const hasAny = day => state.days[day] && KEYS.some(k => state.days[day][k] > 0);
 
 // Ударный режим: день засчитан, если записаны все упражнения, которые были в программе в этот день (обе стороны там, где они есть)
@@ -286,7 +298,8 @@ const AB_NAME = {A: "День А · верх тела и пресс", B: "Ден
 const isDouble = day => !!(state.days[day] && state.days[day]._double);
 const exShow = day => EX.filter(e => !e.days || !dayType(day) || isDouble(day) || e.days.includes(dayType(day)));
 const keysOn = day => exShow(day).filter(e => !e.since || e.since <= day).flatMap(e => e.sides ? [e.id+"_L", e.id+"_R"] : [e.id]);
-const zDone = day => !!state.days[day] && keysOn(day).every(k => state.days[day][k] > 0);
+const zDone = day => !!state.days[day] && (day >= "2026-11-08" ? newDone(day) : keysOn(day).every(k => state.days[day][k] > 0));
+// С 08.11.2026 — калистеника: «Каждый день» + День А (пн/ср/пт) / Б (вт/чт/сб), в воскресенье только «Каждый день»
 // Заморозка: пропущенный день, «оплаченный» заданием, не рвёт серию (но и не прибавляет к ней)
 // state.days[день]._freeze = {how: "eng"|"double"|"own", text, payDay, at}; двойная зарядка — state.days[payDay]._double = true
 const FRZ_NAME = {eng: "1 час английского", double: "двойная зарядка", own: "своё задание"};
@@ -305,8 +318,8 @@ function bestStreak(){
 function freezeBox(){
   const today = todayISO();
   const pend = Object.keys(state.days).find(d => { const f = state.days[d]._freeze; return f && f.how === "double" && f.payDay === today && !zDone(today); });
-  if (pend) { const ex = exShow(today).filter(e => !e.since || e.since <= today), got = ex.filter(e => (e.sides ? [e.id+"_L", e.id+"_R"] : [e.id]).every(k => state.days[today] && state.days[today][k] > 0)).length;
-    return `<div class="frz">❄️ Заморозка ${fmtShort(pend)}: сегодня двойная зарядка (А + Б) — сделано ${got} из ${ex.length} упражнений</div>`; }
+  if (pend) { const [got, all] = dayCount(today);
+    return `<div class="frz">❄️ Заморозка ${fmtShort(pend)}: сегодня двойная зарядка (А + Б) — сделано ${got} из ${all} упражнений</div>`; }
   const cand = [1, 2].map(k => shift(today, -k)).find(d => d >= AB_START && !zDone(d) && !isFrozen(d) && (zDone(shift(d, -1)) || isFrozen(shift(d, -1))));
   if (!cand) return "";
   const used = Object.keys(state.days).some(d => state.days[d]._freeze && state.days[d]._freeze.at > Date.now() - 7 * 86400000);
@@ -483,6 +496,107 @@ function openWatch(p){
   w.onclick = () => { w.hidden = true; };
 }
 
+// ===== Калистеника (с 08.11.2026): каждый день + День А (верх) / День Б (низ и корпус) =====
+const SWITCH = "2026-11-08";
+const DAILY = [
+  {id:"kegel", name:"Кегель", hint:"3×10: сжать на 3 с, расслабить на 3 с", type:"check"},
+  {id:"wip", name:"Дворники", hint:"Лёжа на спине, колени согнуты: опускайте колени в сторону до пола", type:"num", sides:true, unit:"раз"},
+  {id:"mbr", name:"Мостик с пола", hint:"Подъёмы с паузой 2–3 с наверху, грудь к рукам. В конце одно удержание 20–30 с", type:"num", unit:"подъёмов"},
+];
+// lv — ступени по порядку; sets — подходов; goal — цель в подходе для перехода (в goalSets подходах); u — единица
+const SA = [
+  {id:"pull", sets:4, goal:12, goalSets:3, start:"5–6", lv:["Подтягивания","Подтягивания с паузой наверху 2–3 с","Подтягивания «лучник»"], hint:"Хват чуть шире плеч, подбородок выше перекладины. Если турник низкий — колени согнуть назад. В конце 2 медленных негатива по 5 с"},
+  {id:"pushf", sets:3, goal:12, start:"8–10", lv:["Отжимания, ноги на стуле","Отжимания с паузой внизу 2 с, ноги на стуле","Отжимания «лучник»"], hint:"Тело прямое, локти назад под 45°, грудь почти до пола"},
+  {id:"pike", sets:3, goal:12, start:"6–8", lv:["Пайк-отжимания","Пайк-отжимания, ноги на стуле","Отжимания в стойке у стены"], hint:"«Домик», таз высоко, голова опускается между ладоней, локти назад"},
+  {id:"tri", sets:3, goal:12, start:"8–10", lv:["Отжимания на трицепс от стула, ноги прямые","Отжимания на трицепс, пятки на втором стуле"], hint:"Вниз за 3 с до 90° в локтях, пауза внизу, плечи не поднимать к ушам"},
+  {id:"plk", sets:3, goal:12, start:"6–8", lv:["Планка: с локтей на руки + колено к груди"], hint:"С локтей на прямые руки по одной, наверху колено к груди, обратно на локти. Таз не раскачивать"},
+  {id:"sup", sets:2, goal:15, start:"12", lv:["Супермен","Супермен с паузой 3 с наверху"], hint:"Лёжа на животе: руки, грудь и прямые ноги вверх на 10–15 см, пауза 2–3 с"},
+];
+const SB = [
+  {id:"bulg", sides:true, sets:3, goal:12, start:"8", lv:["Болгарские выпады","Болгарские выпады: вниз за 3 с, пауза внизу"], hint:"Задняя нога носком на стуле, колено передней по направлению носка"},
+  {id:"pist", sides:true, sets:3, goal:8, start:"5", lv:["Пистолет на стул, встать с помощью руки","Пистолет на стул без помощи","Пистолет на стул пониже"], hint:"Сесть на одной ноге медленно, встать — с лёгкой помощью руки за косяк. Свободная нога может быть полусогнута"},
+  {id:"towel", sets:3, goal:12, start:"8", lv:["Сгибания на полотенце, две ноги","Сгибания на полотенце, одна нога"], hint:"Мостик, пятки на полотенце: отвести до почти прямых ног и подтянуть обратно, таз не опускать"},
+  {id:"calf2", sets:2, goal:25, start:"15–20", lv:["Подъём на носки","Подъём на носки на одной ноге"], hint:"Медленно вверх, пауза наверху, медленно вниз"},
+  {id:"knee", sets:3, goal:12, start:"8", lv:["Подъём согнутых ног в висе","Подъём прямых ног в висе"], hint:"Без раскачки, колени к груди, вниз медленно"},
+  {id:"hol", sets:3, goal:40, u:"с", start:"20 с", lv:["Лодочка","Лодочка, руки в «стреле»"], hint:"Поясница прижата к полу — главное правило"},
+  {id:"lsit", sets:3, goal:20, u:"с", start:"10 с", lv:["Уголок на кулаках (лотос)","Уголок: колени к груди","Уголок: одна нога вытянута"], hint:"Выжать таз от пола, плечи вниз"},
+  {id:"spl", sides:true, sets:2, goal:45, u:"с", start:"20–30 с", lv:["Боковая планка","Боковая планка с подъёмом верхней ноги"], hint:"Тело в одну линию, таз не провисает"},
+];
+const ALL_S = [...SA, ...SB];
+const isNew = d => d >= SWITCH;
+const ntype = d => { if (!isNew(d)) return "old"; if (isDouble(d)) return "AB"; const w = new Date(d+"T12:00:00").getDay(); return w === 0 ? "sun" : (w % 2 ? "A" : "B"); };
+const TYPE_NAME = {A:"День А — Верх", B:"День Б — Низ и корпус", AB:"❄️ Двойная зарядка — А + Б", sun:"Воскресенье — лёгкий день", old:"Прежняя зарядка"};
+const TYPE_SHORT = {A:"А", B:"Б", AB:"А+Б", sun:"Вс", old:"—"};
+const planFor = d => ({A:SA, B:SB, AB:[...SA, ...SB]}[ntype(d)] || []);
+const sKeys = e => e.sides ? ["c_"+e.id+"_L", "c_"+e.id+"_R"] : ["c_"+e.id];
+const arr = (day, key) => { const o = state.days[day]; const a = o && o[key]; return Array.isArray(a) ? a : []; };
+const filled = a => a.some(v => v > 0);
+function levelFor(id, day){
+  const ds = Object.keys(state.days).filter(d => d < day && state.days[d][id+"_up"] != null).sort();
+  return ds.length ? state.days[ds[ds.length-1]][id+"_up"] : 0;
+}
+function prevSets(key, day){
+  const ds = Object.keys(state.days).filter(d => d < day && filled(arr(d, key))).sort();
+  return ds.length ? {d: ds[ds.length-1], a: arr(ds[ds.length-1], key)} : null;
+}
+const dailyDone = d => { const o = state.days[d] || {}; return !!o.kegel && o.wip_L > 0 && o.wip_R > 0 && o.mbr > 0; };
+const sDone = (e, d) => sKeys(e).every(k => filled(arr(d, k)));
+const exReady = (e, d) => sKeys(e).every(k => arr(d, k).filter(v => v >= e.goal).length >= (e.goalSets || e.sets));
+function newDone(d){ return dailyDone(d) && planFor(d).every(e => sDone(e, d)); }
+function dayCount(d){ // [сделано, всего] упражнений
+  if (!isNew(d)) { const ex = exShow(d).filter(e => !e.since || e.since <= d); return [ex.filter(e => (e.sides ? [e.id+"_L",e.id+"_R"] : [e.id]).every(k => val(k, d) > 0)).length, ex.length]; }
+  const o = state.days[d] || {}, dl = [!!o.kegel, o.wip_L > 0 && o.wip_R > 0, o.mbr > 0].filter(Boolean).length;
+  const p = planFor(d); return [dl + p.filter(e => sDone(e, d)).length, 3 + p.length];
+}
+
+function setDay(mut){
+  const day = state.days[cur] || (state.days[cur] = {});
+  mut(day); day._t = Date.now();
+  if (!dayHasData(day)) delete state.days[cur];
+  save(); renderStatus(); renderHist();
+}
+
+function dailyHTML(){
+  const o = state.days[cur] || {};
+  const row = (e) => {
+    if (e.type === "check") return `<article class="ex ${o.kegel ? "done" : ""}" id="ex_${e.id}"><div class="rb-row" style="border:none;padding:0">
+      <input type="checkbox" id="ck_${e.id}" data-ck="${e.id}" ${o[e.id] ? "checked" : ""}><label for="ck_${e.id}">${e.name}<small>${e.hint}</small></label></div></article>`;
+    const keys = e.sides ? [[e.id+"_L","Левая"],[e.id+"_R","Правая"]] : [[e.id,""]];
+    return `<article class="ex" id="ex_${e.id}"><div class="ex-head"><div class="ex-title"><h2>${e.name}</h2><p>${e.hint}</p></div></div>
+      ${keys.map(([k, lab]) => { const pv = lastBefore(k, cur); return `<div class="side"><span class="side-label ${lab ? "" : "none"}">${lab}</span>
+        <div class="counter"><button data-k="${k}" data-d="-1" aria-label="Минус">−</button>
+        <input id="in_${k}" data-k="${k}" type="number" inputmode="numeric" min="0" value="${o[k] || ""}" placeholder="${pv || 0}" aria-label="${e.name} ${lab}">
+        <button data-k="${k}" data-d="1" aria-label="Плюс">+</button></div>
+        <div class="target">${pv ? `прошлый раз:<b class="num">${pv}</b>` : `${e.unit}`}</div></div>`; }).join("")}</article>`;
+  };
+  return `<div class="sub-h">Каждый день</div>` + DAILY.map(row).join("");
+}
+
+function strengthHTML(){
+  const p = planFor(cur); if (!p.length) return "";
+  const o = state.days[cur] || {};
+  return `<div class="sub-h">${TYPE_NAME[ntype(cur)]}</div>` + p.map((e, i) => {
+    const lv = levelFor(e.id, cur), name = e.lv[Math.min(lv, e.lv.length-1)], up = o[e.id+"_up"];
+    const u = e.u || "";
+    const rows = sKeys(e).map((k, si) => {
+      const a = arr(cur, k), pv = prevSets(k, cur), lab = e.sides ? (si ? "П" : "Л") : "";
+      return `<div class="srow">${lab ? `<span class="slab">${lab}</span>` : ""}<div class="sets-in">${[...Array(e.sets)].map((_, j) =>
+        `<input class="setin ${a[j] >= e.goal ? "hit" : ""}" data-set="${k}|${j}|${e.sets}" type="number" inputmode="numeric" min="0" value="${a[j] || ""}" placeholder="${pv && pv.a[j] ? pv.a[j] : "·"}" aria-label="${name} ${lab} подход ${j+1}">`).join("")}</div></div>
+        ${pv ? `<p class="prev">прошлый раз (${fmtShort(pv.d)}): ${pv.a.map(v => v || "–").join(" · ")}${u ? " " + u : ""}</p>` : ""}`;
+    }).join("");
+    const ready = exReady(e, cur), hasNext = lv + 1 < e.lv.length;
+    let foot = "";
+    if (up != null) foot = `<div class="lvup ok">✓ Со следующей тренировки: «${e.lv[up]}» <button class="bk" data-undo="${e.id}">Отменить</button></div>`;
+    else if (ready && hasNext) foot = `<div class="lvup">🎯 Цель выполнена — готово к следующей ступени <button class="bk primary" data-up="${e.id}" data-to="${lv+1}">Перейти: «${e.lv[lv+1]}»</button></div>`;
+    else if (ready) foot = `<div class="lvup ok">🎯 Цель выполнена — это последняя ступень, наращивайте повторы</div>`;
+    return `<article class="ex ${sDone(e, cur) ? "done" : ""}" id="ex_${e.id}">
+      <div class="ex-head"><span class="ex-n">${i+1}</span><div class="ex-title"><h2>${name}</h2><p>${e.hint}</p></div>
+      <span class="ts">ступень ${lv+1}/${e.lv.length}</span></div>
+      <p class="goal">${e.sets} подх. · старт ${e.start} · цель для перехода: ${e.goalSets || e.sets}×${e.goal}${u ? " " + u : ""}${e.sides ? " на каждую сторону" : ""}</p>
+      ${rows}${foot}</article>`;
+  }).join("");
+}
+
 function render(){
   const isToday = cur === todayISO();
   document.getElementById("dayTitle").firstChild.textContent = isToday ? "Сегодня" : (cur === shift(todayISO(),-1) ? "Вчера" : fmtShort(cur));
@@ -490,71 +604,99 @@ function render(){
   document.getElementById("next").disabled = false;
   document.body.classList.toggle("future", cur > todayISO());
   renderSwim(); renderRubber();
-  const dt = dayType(cur);
-  document.getElementById("list").innerHTML = (isDouble(cur) ? `<div class="dayab">❄️ Двойная зарядка · А + Б</div>` : dt ? `<div class="dayab">${AB_NAME[dt]}</div>` : "") + exShow(cur).map((e,i) => `
+  const t = ntype(cur);
+  document.getElementById("zInfo").textContent = TYPE_NAME[t];
+  document.getElementById("rules").textContent = t === "old"
+    ? "Прежняя зарядка: каждое упражнение до отказа, цель — прошлый результат +1."
+    : t === "sun" ? "Лёгкий день: только блок «Каждый день». Силовой части нет — восстановление."
+    : "Последний повтор в подходе — трудный, но без полного отказа. Отдых между подходами 1,5–2 мин. В ячейках серым — прошлый результат.";
+  document.getElementById("list").innerHTML = t === "old" ? (isDouble(cur) ? `<div class="dayab">❄️ Двойная зарядка · А + Б</div>` : dayType(cur) ? `<div class="dayab">${AB_NAME[dayType(cur)]}</div>` : "") + exShow(cur).map((e,i) => `
     <article class="ex" id="ex_${e.id}">
       <div class="ex-head">
         <span class="ex-n">${i+1}</span>
         <div class="ex-title"><h2>${e.name}</h2>${e.hint?`<p>${e.hint}</p>`:""}</div>
       </div>
       ${e.sides ? sideRow(e, e.id+"_L", (e.labels||["Левая","Правая"])[0]) + sideRow(e, e.id+"_R", (e.labels||["Левая","Правая"])[1]) : sideRow(e, e.id, "")}
-    </article>`).join("");
+    </article>`).join("") : dailyHTML() + strengthHTML();
   renderStatus(); renderHist();
 }
 
 function renderStatus(){
-  let done = 0, total = 0;
-  const shown = exShow(cur);
-  shown.forEach(e => {
-    const ok = exDone(e, cur); if (ok) done++;
-    document.getElementById("ex_"+e.id)?.classList.toggle("done", ok);
-  });
-  KEYS.forEach(k => {
-    total += val(k, cur);
-    const t = target(k, cur), el = document.getElementById("tg_"+k);
-    if (el) el.classList.toggle("hit", t != null && val(k, cur) >= t);
-  });
-  document.getElementById("sDone").textContent = done+"/"+shown.length;
-  document.getElementById("sTotal").textContent = total;
+  const t = ntype(cur);
+  if (t === "old"){
+    let total = 0;
+    exShow(cur).forEach(e => document.getElementById("ex_"+e.id)?.classList.toggle("done", exDone(e, cur)));
+    KEYS.forEach(k => { total += val(k, cur); const tg = target(k, cur), el = document.getElementById("tg_"+k); if (el) el.classList.toggle("hit", tg != null && val(k, cur) >= tg); });
+    document.getElementById("sTotal").textContent = total;
+    document.getElementById("sTotalL").textContent = "повторов за день";
+  } else {
+    const o = state.days[cur] || {};
+    document.getElementById("ex_kegel")?.classList.toggle("done", !!o.kegel);
+    document.getElementById("ex_wip")?.classList.toggle("done", o.wip_L > 0 && o.wip_R > 0);
+    document.getElementById("ex_mbr")?.classList.toggle("done", o.mbr > 0);
+    planFor(cur).forEach(e => document.getElementById("ex_"+e.id)?.classList.toggle("done", sDone(e, cur)));
+    const n = planFor(cur).reduce((s, e) => s + sKeys(e).reduce((a, k) => a + arr(cur, k).filter(v => v > 0).length, 0), 0);
+    document.getElementById("sTotal").textContent = n;
+    document.getElementById("sTotalL").textContent = "подходов за день";
+  }
+  const [dn, tot] = dayCount(cur);
+  document.getElementById("sDone").textContent = dn + "/" + tot;
   document.getElementById("sStreak").textContent = streak();
   renderUdar();
-  document.getElementById("bar").style.width = (done/shown.length*100)+"%";
+  document.getElementById("bar").style.width = (dn/tot*100) + "%";
 }
 
 function renderHist(){
-  const days = Object.keys(state.days).filter(d => dayHasData(state.days[d])).sort().reverse().slice(0, 30);
+  const days = Object.keys(state.days).filter(d => /^\d{4}-/.test(d) && dayHasData(state.days[d])).sort().reverse().slice(0, 30);
   const box = document.getElementById("hist");
   if (!days.length){ box.innerHTML = `<div class="empty">Здесь появятся ваши результаты по дням. Отметьте первое упражнение выше.</div>`; return; }
-  const cols = [["Отж.","pushup"],["Трицепс","dips"],["Планка","plankknee"],["Планка таз","plankhip"],["Пресс","abs"],["Бок. Л","sideplank_L"],["Бок. П","sideplank_R"],["Мостик","wheel"],["Таз","hipraise"],["Рука-стопа","crab"],["Стол","tabletop"],["Прис.","squat"],["С колен","kneelthrust"],["Дворники","wipers"],["Кегель","kegel"],["Подт.","pullup"]];
-  box.innerHTML = `<table><thead><tr><th>Дата</th>${cols.map(c=>`<th>${c[0]}</th>`).join("")}<th>Бассейн</th><th>Резина</th></tr></thead><tbody>${
-    days.map(d => `<tr><td>${fmtShort(d)}${frzTag(d)}</td>${cols.map(c => `<td>${state.days[d][c[1]]||"–"}</td>`).join("")}<td>${swimCell(state.days[d])}</td><td>${RB.filter(r=>state.days[d][r.id]).length||"–"}</td></tr>`).join("")
+  box.innerHTML = `<table><thead><tr><th>Дата</th><th>Тип</th><th>Зарядка</th><th>Бассейн</th><th>Резина</th></tr></thead><tbody>${
+    days.map(d => { const [dn, tot] = dayCount(d); return `<tr><td>${fmtShort(d)}${frzTag(d)}</td><td>${TYPE_SHORT[ntype(d)]}</td><td>${dn ? (zDone(d) ? "✓ " : "") + dn + "/" + tot : "–"}</td><td>${swimCell(state.days[d])}</td><td>${RB.filter(r=>state.days[d][r.id]).length||"–"}</td></tr>`; }).join("")
   }</tbody></table>`;
 }
 
-document.getElementById("list").addEventListener("click", ev => {
-  const b = ev.target.closest("button[data-k]"); if (!b) return;
-  const k = b.dataset.k, nv = Math.max(0, val(k, cur) + (+b.dataset.d));
-  document.getElementById("in_"+k).value = nv || "";
-  setVal(k, nv);
+const listEl = document.getElementById("list");
+listEl.addEventListener("click", ev => {
+  const b = ev.target.closest("button[data-k]");
+  if (b){ const k = b.dataset.k, nv = Math.max(0, val(k, cur) + (+b.dataset.d)); document.getElementById("in_"+k).value = nv || ""; setVal(k, nv); return; }
+  const u = ev.target.closest("button[data-up]");
+  if (u){ setDay(day => { day[u.dataset.up+"_up"] = +u.dataset.to; }); render(); return; }
+  const un = ev.target.closest("button[data-undo]");
+  if (un){ setDay(day => { delete day[un.dataset.undo+"_up"]; }); render(); }
 });
-document.getElementById("list").addEventListener("input", ev => {
-  if (ev.target.matches("input[data-k]")) setVal(ev.target.dataset.k, ev.target.value);
+listEl.addEventListener("input", ev => {
+  const el = ev.target;
+  if (el.matches("input[data-k]")) setVal(el.dataset.k, el.value);
+  else if (el.matches("input[data-set]")){
+    const [k, j, n] = el.dataset.set.split("|"), v = Math.max(0, Math.min(999, Math.round(+el.value || 0)));
+    const ex = ALL_S.find(e => k.startsWith("c_"+e.id));
+    el.classList.toggle("hit", ex && v >= ex.goal);
+    setDay(day => { const a = Array.isArray(day[k]) ? day[k].slice() : []; while (a.length < +n) a.push(0); a[+j] = v; day[k] = a.some(x => x > 0) ? a : undefined; if (!day[k]) delete day[k]; });
+    // пересобрать подвал упражнения (кнопка перехода), не трогая фокус
+    clearTimeout(listEl._t); listEl._t = setTimeout(() => { if (document.activeElement && document.activeElement.matches("input[data-set]")) return; render(); }, 1200);
+  }
+});
+listEl.addEventListener("focusout", () => { clearTimeout(listEl._t); listEl._t = setTimeout(() => { if (!(document.activeElement && document.activeElement.matches("input[data-set]"))) render(); }, 300); });
+listEl.addEventListener("change", ev => {
+  const c = ev.target.closest("input[data-ck]"); if (!c) return;
+  setDay(day => { if (c.checked) day[c.dataset.ck] = 1; else delete day[c.dataset.ck]; });
 });
 document.getElementById("prev").onclick = () => { cur = shift(cur,-1); render(); };
 document.getElementById("next").onclick = () => { cur = shift(cur,1); render(); };
+
 
 // Rest timer
 let timer = null;
 const restBtn = document.getElementById("rest");
 restBtn.onclick = () => {
-  if (timer){ clearInterval(timer); timer = null; restBtn.classList.remove("running"); restBtn.textContent = "Отдых 10 сек"; return; }
-  let s = 10; restBtn.classList.add("running"); restBtn.textContent = "Отдых: "+s;
+  if (timer){ clearInterval(timer); timer = null; restBtn.classList.remove("running"); restBtn.textContent = "Отдых 90 сек"; return; }
+  let s = 90; restBtn.classList.add("running"); restBtn.textContent = "Отдых: "+Math.floor(s/60)+":"+String(s%60).padStart(2,"0");
   timer = setInterval(() => {
     s--;
-    if (s <= 0){ clearInterval(timer); timer = null; restBtn.classList.remove("running"); restBtn.textContent = "Поехали! · Отдых 10 сек";
+    if (s <= 0){ clearInterval(timer); timer = null; restBtn.classList.remove("running"); restBtn.textContent = "Поехали! · Отдых 90 сек";
       try { navigator.vibrate && navigator.vibrate([200,100,200]); } catch(e){}
-      setTimeout(() => { if (!timer) restBtn.textContent = "Отдых 10 сек"; }, 2500);
-    } else restBtn.textContent = "Отдых: "+s;
+      setTimeout(() => { if (!timer) restBtn.textContent = "Отдых 90 сек"; }, 2500);
+    } else restBtn.textContent = "Отдых: "+Math.floor(s/60)+":"+String(s%60).padStart(2,"0");
   }, 1000);
 };
 
