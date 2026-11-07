@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#2E56D8">
-<meta name="app-version" content="2026-11-04.1">
+<meta name="app-version" content="2026-11-07.1">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Тренировки">
@@ -130,6 +130,11 @@ tr:last-child td{border-bottom:none}
 .udar-week i{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:14px;background:rgba(255,255,255,.22);border:2px solid transparent}
 .udar-week i.on{background:#fff;color:#E8452C}
 .udar-week i.today{border-color:#fff}
+.udar-week i.fz{background:#DCEBFF;color:#2E56D8;border-color:#DCEBFF}
+.frz{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600;background:rgba(255,255,255,.18);border-radius:12px;padding:10px}
+.udar.cold .frz{background:var(--bg);border:1px solid var(--line)}
+.frz-row{display:flex;flex-wrap:wrap;gap:6px}
+.frz-row button{border:none;border-radius:999px;padding:7px 12px;font:inherit;font-size:12.5px;font-weight:700;background:#fff;color:#2E56D8;cursor:pointer}
 .udar.cold .udar-week i{background:var(--bg);border:2px solid var(--line)}
 .udar.cold .udar-week i.on{background:var(--ok);color:#fff;border-color:var(--ok)}
 .udar.cold .udar-week i.today{border-color:var(--accent)}
@@ -270,7 +275,7 @@ function exDone(e, day){
   const ks = e.sides ? [e.id+"_L", e.id+"_R"] : [e.id];
   return ks.every(k => { const v = val(k, day), t = target(k, day); return v > 0 && (t == null || v >= t); });
 }
-const dayHasData = o => KEYS.some(k => o[k] > 0) || RB.some(r => o[r.id]) || (o.swim && (o.swim.done || o.swim.rpe || o.swim.note));
+const dayHasData = o => KEYS.some(k => o[k] > 0) || RB.some(r => o[r.id]) || (o.swim && (o.swim.done || o.swim.rpe || o.swim.note)) || !!o._freeze || !!o._double;
 const hasAny = day => state.days[day] && KEYS.some(k => state.days[day][k] > 0);
 
 // Ударный режим: день засчитан, если записаны все упражнения, которые были в программе в этот день (обе стороны там, где они есть)
@@ -278,20 +283,50 @@ const hasAny = day => state.days[day] && KEYS.some(k => state.days[day][k] > 0);
 const AB_START = "2026-10-27";
 const dayType = day => { if (day < AB_START) return null; const n = Math.round((new Date(day+"T12:00:00") - new Date(AB_START+"T12:00:00")) / 86400000); return n % 2 === 0 ? "A" : "B"; };
 const AB_NAME = {A: "День А · верх тела и пресс", B: "День Б · ноги и ягодицы"};
-const exShow = day => EX.filter(e => !e.days || !dayType(day) || e.days.includes(dayType(day)));
+const isDouble = day => !!(state.days[day] && state.days[day]._double);
+const exShow = day => EX.filter(e => !e.days || !dayType(day) || isDouble(day) || e.days.includes(dayType(day)));
 const keysOn = day => exShow(day).filter(e => !e.since || e.since <= day).flatMap(e => e.sides ? [e.id+"_L", e.id+"_R"] : [e.id]);
 const zDone = day => !!state.days[day] && keysOn(day).every(k => state.days[day][k] > 0);
+// Заморозка: пропущенный день, «оплаченный» заданием, не рвёт серию (но и не прибавляет к ней)
+// state.days[день]._freeze = {how: "eng"|"double"|"own", text, payDay, at}; двойная зарядка — state.days[payDay]._double = true
+const FRZ_NAME = {eng: "1 час английского", double: "двойная зарядка", own: "своё задание"};
+const isFrozen = day => { const f = state.days[day] && state.days[day]._freeze; return !!f && (f.how !== "double" || zDone(f.payDay) || f.payDay === todayISO()); };
 function streak(){
-  let d = zDone(todayISO()) ? todayISO() : shift(todayISO(), -1), n = 0;
-  while (zDone(d)) { n++; d = shift(d, -1); }
+  let d = zDone(todayISO()) ? todayISO() : shift(todayISO(), -1), n = 0, guard = 0;
+  while (guard++ < 4000) { if (zDone(d)) n++; else if (!isFrozen(d)) break; d = shift(d, -1); }
   return n;
 }
 function bestStreak(){
-  const ds = Object.keys(state.days).filter(zDone).sort();
-  let best = 0, run = 0, prev = null;
-  ds.forEach(d => { run = (prev && shift(prev, 1) === d) ? run + 1 : 1; best = Math.max(best, run); prev = d; });
+  const ds = Object.keys(state.days).sort(); if (!ds.length) return 0;
+  let best = 0, run = 0, d = ds[0], end = todayISO(), guard = 0;
+  while (d <= end && guard++ < 4000) { if (zDone(d)) { run++; best = Math.max(best, run); } else if (!isFrozen(d) && d !== end) run = 0; d = shift(d, 1); }
   return best;
 }
+function freezeBox(){
+  const today = todayISO();
+  const pend = Object.keys(state.days).find(d => { const f = state.days[d]._freeze; return f && f.how === "double" && f.payDay === today && !zDone(today); });
+  if (pend) { const ex = exShow(today).filter(e => !e.since || e.since <= today), got = ex.filter(e => (e.sides ? [e.id+"_L", e.id+"_R"] : [e.id]).every(k => state.days[today] && state.days[today][k] > 0)).length;
+    return `<div class="frz">❄️ Заморозка ${fmtShort(pend)}: сегодня двойная зарядка (А + Б) — сделано ${got} из ${ex.length} упражнений</div>`; }
+  const cand = [1, 2].map(k => shift(today, -k)).find(d => d >= AB_START && !zDone(d) && !isFrozen(d) && (zDone(shift(d, -1)) || isFrozen(shift(d, -1))));
+  if (!cand) return "";
+  const used = Object.keys(state.days).some(d => state.days[d]._freeze && state.days[d]._freeze.at > Date.now() - 7 * 86400000);
+  if (used) return `<div class="frz">${fmtShort(cand)} пропущено. Заморозка уже использована на этой неделе.</div>`;
+  return `<div class="frz"><b>❄️ ${fmtShort(cand)} пропущено — можно сохранить серию</b><span>Выберите, чем оплатить пропуск:</span><div class="frz-row">
+    <button data-frz="eng" data-day="${cand}">1 час английского</button><button data-frz="double" data-day="${cand}">Двойная зарядка сегодня</button><button data-frz="own" data-day="${cand}">Своё задание</button></div></div>`;
+}
+function doFreeze(day, how){
+  let text = "";
+  if (how === "own") { text = (prompt("Какое задание выполнили вместо зарядки?") || "").trim(); if (!text) return; }
+  else if (how === "eng") { if (!confirm("Час английского сделан?")) return; }
+  else if (how === "double") { if (!confirm("Сегодня в списке будут упражнения дня А и дня Б. Заморозка засчитается, когда все будут отмечены. Начать?")) return; }
+  const today = todayISO(), now = Date.now();
+  const o = state.days[day] || (state.days[day] = {});
+  o._freeze = {how, text, payDay: today, at: now}; o._t = now;
+  if (how === "double") { const t = state.days[today] || (state.days[today] = {}); t._double = true; t._t = now; cur = today; }
+  save(); render();
+}
+document.addEventListener("click", ev => { const b = ev.target.closest("[data-frz]"); if (b) doFreeze(b.dataset.day, b.dataset.frz); });
+const frzTag = d => { const f = state.days[d] && state.days[d]._freeze; return f ? ` ❄️<small style="display:block;font-size:10px;color:var(--muted)">${f.how === "own" ? esc(f.text) : FRZ_NAME[f.how]}${isFrozen(d) ? "" : " · не выполнено"}</small>` : (state.days[d] && state.days[d]._double ? ' <small style="display:block;font-size:10px;color:var(--muted)">А + Б</small>' : ""); };
 const LEVELS = [[3,"Разгон"],[7,"Неделя без пропусков"],[14,"Две недели"],[21,"Привычка"],[30,"Месяц"],[50,"Полсотни"],[75,"Железный"],[100,"Сотня"],[150,"Машина"],[200,"Легенда"],[365,"Год"]];
 const dayWord = n => { const a = n % 10, b = n % 100; return (a === 1 && b !== 11) ? "день" : (a >= 2 && a <= 4 && (b < 12 || b > 14)) ? "дня" : "дней"; };
 let lastStreak = null;
@@ -306,14 +341,15 @@ function renderUdar(){
   else if (n === best && n > 1) msg = "Это твой лучший результат. Так держать!";
   else msg = "Сегодня зачтено. До встречи завтра утром.";
   const wd = ["вс","пн","вт","ср","чт","пт","сб"];
-  const week = [...Array(7)].map((_, i) => { const d = shift(today, i - 6); const on = zDone(d);
-    return `<span><i class="${on ? "on" : ""} ${d === today ? "today" : ""}">${on ? "✓" : ""}</i>${wd[new Date(d+"T12:00:00").getDay()]}</span>`; }).join("");
+  const week = [...Array(7)].map((_, i) => { const d = shift(today, i - 6); const on = zDone(d), fz = !on && isFrozen(d);
+    return `<span><i class="${on ? "on" : fz ? "fz" : ""} ${d === today ? "today" : ""}">${on ? "✓" : fz ? "❄" : ""}</i>${wd[new Date(d+"T12:00:00").getDay()]}</span>`; }).join("");
   const badges = LEVELS.slice(0, 7).map(l => `<span class="${best >= l[0] ? "" : "lock"}">${best >= l[0] ? "🏅" : "🔒"} ${l[0]} · ${l[1]}</span>`).join("");
   document.getElementById("udar").innerHTML = `<div class="udar ${n > 0 ? "" : "cold"}">
     <div class="udar-top"><div class="udar-fire">🔥</div>
       <div class="udar-t"><small>Ударный режим</small><b>${n} ${dayWord(n)}</b></div>
       <div class="udar-best">рекорд<b>${best}</b></div></div>
     <p class="udar-msg">${msg}</p>
+    ${freezeBox()}
     <div class="udar-week">${week}</div>
     ${next ? `<div class="udar-goal"><span>До уровня «${next[1]}» — ${next[0] - n} ${dayWord(next[0] - n)}</span><div class="gbar"><i style="width:${pct}%"></i></div></div>` : ""}
     <div class="udar-badges">${badges}</div></div>`;
@@ -455,7 +491,7 @@ function render(){
   document.body.classList.toggle("future", cur > todayISO());
   renderSwim(); renderRubber();
   const dt = dayType(cur);
-  document.getElementById("list").innerHTML = (dt ? `<div class="dayab">${AB_NAME[dt]}</div>` : "") + exShow(cur).map((e,i) => `
+  document.getElementById("list").innerHTML = (isDouble(cur) ? `<div class="dayab">❄️ Двойная зарядка · А + Б</div>` : dt ? `<div class="dayab">${AB_NAME[dt]}</div>` : "") + exShow(cur).map((e,i) => `
     <article class="ex" id="ex_${e.id}">
       <div class="ex-head">
         <span class="ex-n">${i+1}</span>
@@ -491,7 +527,7 @@ function renderHist(){
   if (!days.length){ box.innerHTML = `<div class="empty">Здесь появятся ваши результаты по дням. Отметьте первое упражнение выше.</div>`; return; }
   const cols = [["Отж.","pushup"],["Трицепс","dips"],["Планка","plankknee"],["Планка таз","plankhip"],["Пресс","abs"],["Бок. Л","sideplank_L"],["Бок. П","sideplank_R"],["Мостик","wheel"],["Таз","hipraise"],["Рука-стопа","crab"],["Стол","tabletop"],["Прис.","squat"],["С колен","kneelthrust"],["Дворники","wipers"],["Кегель","kegel"],["Подт.","pullup"]];
   box.innerHTML = `<table><thead><tr><th>Дата</th>${cols.map(c=>`<th>${c[0]}</th>`).join("")}<th>Бассейн</th><th>Резина</th></tr></thead><tbody>${
-    days.map(d => `<tr><td>${fmtShort(d)}</td>${cols.map(c => `<td>${state.days[d][c[1]]||"–"}</td>`).join("")}<td>${swimCell(state.days[d])}</td><td>${RB.filter(r=>state.days[d][r.id]).length||"–"}</td></tr>`).join("")
+    days.map(d => `<tr><td>${fmtShort(d)}${frzTag(d)}</td>${cols.map(c => `<td>${state.days[d][c[1]]||"–"}</td>`).join("")}<td>${swimCell(state.days[d])}</td><td>${RB.filter(r=>state.days[d][r.id]).length||"–"}</td></tr>`).join("")
   }</tbody></table>`;
 }
 
