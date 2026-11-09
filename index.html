@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#2E56D8">
-<meta name="app-version" content="2026-11-08.5">
+<meta name="app-version" content="2026-11-09.1">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Тренировки">
@@ -407,7 +407,7 @@ const RB = [
   {id:"rbs", name:"Двумя руками одновременно в наклоне — начало гребка", hint:"Захват: высокий локоть, тяга до уровня груди", rx:["2×50","2×50","2×50","2×50"]},
   {id:"rbe", name:"Двумя руками одновременно в наклоне — конец гребка", hint:"Финиш: от груди мощно до бедра", rx:["2×50","2×50","2×50","2×50"]},
   {id:"rbf", name:"Двумя руками одновременно в наклоне — весь гребок", hint:"От захвата до бедра одним движением", rx:["2×50","2×50","2×50","2×50"]},
-  {id:"rbleg", name:"Махи ногой с резиной стоя (имитация удара ногами)", hint:"Резина на обеих лодыжках, стоя одной ногой на ступеньке, руками в стену, корпус наклонён на 30–45°. Махи от бедра, амплитуда 30–40 см: вперёд резко, с «хлёстом» колена, назад под контролем; носок вытянут. На каждую ногу", rx:["3×20 с","3×25 с","3×30 с","3×20 с"]},
+  {id:"rbleg", name:"Махи ногой с резиной стоя (имитация удара ногами)", hint:"Резина на обеих лодыжках, стоя одной ногой на ступеньке, руками в стену, корпус наклонён на 30–45°. Махи от бедра, амплитуда 30–40 см: вперёд резко, с «хлёстом» колена, назад под контролем; носок вытянут. На каждую ногу", rx:["50 на ногу","50 на ногу","50 на ногу","50 на ногу"]},
 ];
 const dayDiff = (a, b) => Math.round((new Date(a+"T12:00:00") - new Date(b+"T12:00:00")) / 864e5);
 const blockWeek = d => Math.max(1, Math.min(4, Math.floor(dayDiff(d, BLOCK_START) / 7) + 1));
@@ -525,7 +525,11 @@ const isNew = d => d >= SWITCH;
 const ntype = d => { if (!isNew(d)) return "old"; if (isDouble(d)) return "AB"; const w = new Date(d+"T12:00:00").getDay(); return w === 0 ? "sun" : (w % 2 ? "A" : "B"); };
 const TYPE_NAME = {A:"День А — Верх", B:"День Б — Низ и корпус", AB:"❄️ Двойная зарядка — А + Б", sun:"Воскресенье — лёгкий день", old:"Прежняя зарядка"};
 const TYPE_SHORT = {A:"А", B:"Б", AB:"А+Б", sun:"Вс", old:"—"};
-const planFor = d => ({A:SA, B:SB, AB:[...SA, ...SB]}[ntype(d)] || []);
+// Пауза для плеч (с 09.11): скрыть упражнения, ступени и данные сохраняются. to: null — до отмены
+const PAUSE = {from:"2026-11-09", to:null, ids:["pull","pushf","pike","tri","plk"], why:"Плечи на паузе: подтягивания, отжимания, пайк, трицепс и планка временно убраны"};
+const isPaused = (e, d) => PAUSE.ids.includes(e.id) && d >= PAUSE.from && (!PAUSE.to || d <= PAUSE.to);
+const planFor = d => ({A:SA, B:SB, AB:[...SA, ...SB]}[ntype(d)] || []).filter(e => !isPaused(e, d));
+const pauseNote = d => (["A","AB"].includes(ntype(d)) && d >= PAUSE.from && (!PAUSE.to || d <= PAUSE.to)) ? `<p class="note">⏸ ${PAUSE.why}</p>` : "";
 const sKeys = e => e.sides ? ["c_"+e.id+"_L", "c_"+e.id+"_R"] : ["c_"+e.id];
 const arr = (day, key) => { const o = state.days[day]; const a = o && o[key]; return Array.isArray(a) ? a : []; };
 const filled = a => a.some(v => v > 0);
@@ -573,7 +577,7 @@ function dailyHTML(){
 function strengthHTML(){
   const p = planFor(cur); if (!p.length) return "";
   const o = state.days[cur] || {};
-  return `<div class="sub-h">${TYPE_NAME[ntype(cur)]}</div>` + p.map((e, i) => {
+  return `<div class="sub-h">${TYPE_NAME[ntype(cur)]}</div>${pauseNote(cur)}` + p.map((e, i) => {
     const lv = levelFor(e.id, cur), name = e.lv[Math.min(lv, e.lv.length-1)], up = o[e.id+"_up"];
     const u = e.u || "";
     const rows = sKeys(e).map((k, si) => {
