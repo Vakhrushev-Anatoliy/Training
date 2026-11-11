@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#2E56D8">
-<meta name="app-version" content="2026-11-09.3">
+<meta name="app-version" content="2026-11-11.1">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Тренировки">
@@ -514,15 +514,15 @@ const SA = [
 const SB = [
   {id:"bulg", sides:true, sets:3, goal:12, start:"8", lv:["Болгарские выпады","Болгарские выпады: вниз за 3 с, пауза внизу"], hint:"Задняя нога носком на стуле, колено передней по направлению носка"},
   {id:"pist", sides:true, sets:3, goal:8, start:"5", lv:["Пистолет на стул, встать с помощью руки","Пистолет на стул без помощи","Пистолет на стул пониже"], hint:"Сесть на одной ноге медленно, встать — с лёгкой помощью руки за косяк. Свободная нога может быть полусогнута"},
-  {id:"towel", sets:3, goal:12, start:"8", lv:["Сгибания на полотенце, две ноги","Сгибания на полотенце, одна нога"], hint:"Мостик, пятки на полотенце: отвести до почти прямых ног и подтянуть обратно, таз не опускать"},
-  {id:"knee", sets:3, goal:12, start:"8", lv:["Подъём согнутых ног в висе","Подъём прямых ног в висе"], hint:"Без раскачки, колени к груди, вниз медленно"},
   {id:"hol", sets:3, goal:40, u:"с", start:"20 с", lv:["Лодочка","Лодочка, руки в «стреле»"], hint:"Поясница прижата к полу — главное правило"},
   {id:"lsit", sets:3, goal:20, u:"с", start:"10 с", lv:["Уголок на кулаках (лотос)","Уголок: колени к груди","Уголок: одна нога вытянута"], hint:"Выжать таз от пола, плечи вниз"},
   {id:"spl", sides:true, sets:2, goal:45, u:"с", start:"20–30 с", lv:["Боковая планка","Боковая планка с подъёмом верхней ноги"], hint:"Тело в одну линию, таз не провисает"},
 ];
 const ALL_S = [...SA, ...SB];
 const isNew = d => d >= SWITCH;
-const ntype = d => { if (!isNew(d)) return "old"; if (isDouble(d)) return "AB"; const w = new Date(d+"T12:00:00").getDay(); return w === 0 ? "sun" : (w % 2 ? "A" : "B"); };
+// Разовые дни «А + Б» (перенос пропущенного дня), не заморозка
+const DOUBLE_DAYS = {"2026-11-11": "День А + Б (перенос дня Б с 10.11)"};
+const ntype = d => { if (!isNew(d)) return "old"; if (isDouble(d) || DOUBLE_DAYS[d]) return "AB"; const w = new Date(d+"T12:00:00").getDay(); return w === 0 ? "sun" : (w % 2 ? "A" : "B"); };
 const TYPE_NAME = {A:"День А — Верх", B:"День Б — Низ и корпус", AB:"❄️ Двойная зарядка — А + Б", sun:"Воскресенье — лёгкий день", old:"Прежняя зарядка"};
 const TYPE_SHORT = {A:"А", B:"Б", AB:"А+Б", sun:"Вс", old:"—"};
 // Пауза для плеч (с 09.11): скрыть упражнения, ступени и данные сохраняются. to: null — до отмены
@@ -577,7 +577,7 @@ function dailyHTML(){
 function strengthHTML(){
   const p = planFor(cur); if (!p.length) return "";
   const o = state.days[cur] || {};
-  return `<div class="sub-h">${TYPE_NAME[ntype(cur)]}</div>${pauseNote(cur)}` + p.map((e, i) => {
+  return `<div class="sub-h">${DOUBLE_DAYS[cur] || TYPE_NAME[ntype(cur)]}</div>${pauseNote(cur)}` + p.map((e, i) => {
     const lv = levelFor(e.id, cur), name = e.lv[Math.min(lv, e.lv.length-1)], up = o[e.id+"_up"];
     const u = e.u || "";
     const rows = sKeys(e).map((k, si) => {
@@ -607,7 +607,7 @@ function render(){
   document.body.classList.toggle("future", cur > todayISO());
   renderSwim(); renderRubber();
   const t = ntype(cur);
-  document.getElementById("zInfo").textContent = TYPE_NAME[t];
+  document.getElementById("zInfo").textContent = DOUBLE_DAYS[cur] || TYPE_NAME[t];
   document.getElementById("rules").textContent = t === "old"
     ? "Прежняя зарядка: каждое упражнение до отказа, цель — прошлый результат +1."
     : t === "sun" ? "Лёгкий день: только блок «Каждый день». Силовой части нет — восстановление."
