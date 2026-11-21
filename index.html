@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#2E56D8">
-<meta name="app-version" content="2026-11-21.4">
+<meta name="app-version" content="2026-11-21.5">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Тренировки">
@@ -302,7 +302,7 @@ function exDone(e, day){
   const ks = e.sides ? [e.id+"_L", e.id+"_R"] : [e.id];
   return ks.every(k => { const v = val(k, day), t = target(k, day); return v > 0 && (t == null || v >= t); });
 }
-const dayHasData = o => KEYS.some(k => o[k] > 0) || o.weight > 0 || RB.some(r => o[r.id]) || ["rb1","rb2","rb3","rb4","rb5"].some(k => o[k]) || (o.swim && (o.swim.done || o.swim.rpe || o.swim.hr || o.swim.note)) || !!o._freeze || !!o._double || !!o.kegel || o.wip_L > 0 || o.wip_R > 0 || o.mbr > 0 || Object.keys(o).some(k => (k.startsWith("c_") && Array.isArray(o[k]) && o[k].some(v => v > 0)) || k.endsWith("_up"));
+const dayHasData = o => KEYS.some(k => o[k] > 0) || o.weight > 0 || o.rhr > 0 || RB.some(r => o[r.id]) || ["rb1","rb2","rb3","rb4","rb5"].some(k => o[k]) || (o.swim && (o.swim.done || o.swim.rpe || o.swim.hr || o.swim.note)) || !!o._freeze || !!o._double || !!o.kegel || o.wip_L > 0 || o.wip_R > 0 || o.mbr > 0 || Object.keys(o).some(k => (k.startsWith("c_") && Array.isArray(o[k]) && o[k].some(v => v > 0)) || k.endsWith("_up"));
 const hasAny = day => state.days[day] && KEYS.some(k => state.days[day][k] > 0);
 
 // Ударный режим: день засчитан, если записаны все упражнения, которые были в программе в этот день (обе стороны там, где они есть)
@@ -465,6 +465,8 @@ const WEIGHT = {start:{d:"2026-11-21", w:101.2}, final:"86–90 кг", stages:[
   {to:"2027-04-30", w:91, t:"~91 к концу апреля"},
   {to:"2027-08-31", w:88, t:"87–89 к лету 2027"}]};
 const wAt = d => { const o = state.days[d]; return o && o.weight > 0 ? +o.weight : 0; };
+const rAt = d => { const o = state.days[d]; return o && o.rhr > 0 ? +o.rhr : 0; };
+const rAvg = (end, n = 7) => { const v = []; for (let i = 1; i <= n; i++){ const x = rAt(shift(end, -i)); if (x) v.push(x); } return v.length ? v.reduce((a, b) => a + b, 0) / v.length : 0; };
 const wAvg = (end, n = 7) => { const v = []; for (let i = 0; i < n; i++){ const x = wAt(shift(end, -i)); if (x) v.push(x); } return v.length ? v.reduce((a, b) => a + b, 0) / v.length : 0; };
 function renderWeight(){
   const box = document.getElementById("weightBox");
@@ -481,9 +483,10 @@ function renderWeight(){
     const y = v => (H - 4 - (v - mn) / ((mx - mn) || 1) * (H - 8)).toFixed(1), x = i => (i / 59 * W).toFixed(1);
     spark = `<svg viewBox="0 0 ${W} ${H}" class="wspark" preserveAspectRatio="none" aria-label="Вес за 60 дней"><line x1="0" x2="${W}" y1="${y(st.w)}" y2="${y(st.w)}" class="wgoal" vector-effect="non-scaling-stroke"/><polyline points="${pts.map(p => x(p[0]) + "," + y(p[1])).join(" ")}" vector-effect="non-scaling-stroke"/></svg>`;
   }
-  box.innerHTML = `<div class="sec-h"><h2>Вес</h2><span>цель ${WEIGHT.final}</span></div>
+  box.innerHTML = `<div class="sec-h"><h2>Утро: вес и пульс</h2><span>цель ${WEIGHT.final}</span></div>
   <div class="card wcard">
     <div class="wrow"><label for="wIn">Утром, натощак</label><input id="wIn" type="number" inputmode="decimal" step="0.1" min="40" max="200" value="${today || ""}" placeholder="${(avg || WEIGHT.start.w).toFixed(1)}"><span>кг</span></div>
+    <div class="wrow"><label for="rIn">Пульс утром, за 10 с<small style="display:block;font-weight:400;color:var(--muted);font-size:12px">сразу после пробуждения, лёжа${rAvg(cur) ? ` · обычно ${rAvg(cur).toFixed(1)}` : ""}${rAt(cur) && rAvg(cur) && rAt(cur) - rAvg(cur) >= 1.5 ? " · выше обычного — день полегче" : ""}</small></label><input id="rIn" type="number" inputmode="numeric" step="1" min="6" max="30" value="${rAt(cur) || ""}" placeholder="${rAvg(cur) ? Math.round(rAvg(cur)) : "–"}"><span>уд</span></div>
     <div class="wstats">
       <div><b class="num">${avg ? avg.toFixed(1) : "–"}</b><span>среднее за 7 дней${diff != null ? ` · ${diff > 0 ? "+" : ""}${diff.toFixed(1)} к прошлой неделе` : ""}</span></div>
       <div><b class="num">${st.w}</b><span>этап: ${st.t} · осталось ${left > 0 ? left.toFixed(1) : "0"} кг${left > 0 ? ` (~${need.toFixed(2)} кг/нед)` : " ✓"}</span></div>
@@ -494,6 +497,9 @@ function renderWeight(){
   const inp = document.getElementById("wIn");
   inp.oninput = () => { const v = Math.round((+String(inp.value).replace(",", ".") || 0) * 10) / 10; setDay(day => { if (v >= 40 && v <= 200) day.weight = v; else delete day.weight; }); };
   inp.onchange = () => renderWeight();
+  const rin = document.getElementById("rIn");
+  rin.oninput = () => { const v = Math.round(+rin.value || 0); setDay(day => { if (v >= 6 && v <= 30) day.rhr = v; else delete day.rhr; }); };
+  rin.onchange = () => renderWeight();
 }
 function swimLogHTML(s, isTest){ return `<div class="swim-log">
       <label class="chk ${s.done?"on":""}"><input type="checkbox" id="swDone" ${s.done?"checked":""}>Сделано</label>
