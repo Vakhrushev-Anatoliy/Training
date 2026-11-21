@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#2E56D8">
-<meta name="app-version" content="2026-11-21.2">
+<meta name="app-version" content="2026-11-21.3">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Тренировки">
@@ -455,6 +455,7 @@ function swimLogHTML(s, isTest){ return `<div class="swim-log">
       <input class="sb-in" id="swNote" placeholder="${isTest ? "Время и сплит, напр. 1:05.4 (31.2/34.2)" : "Заметка: времена отрезков, самочувствие плеч"}" value="${esc(s.note||"")}">
     </div>`; }
 function wireSwimLog(){
+  if (!document.getElementById("swDone")) return;
   const upd = full => {
     const day = state.days[cur] || (state.days[cur] = {});
     day.swim = {done: document.getElementById("swDone").checked, hr: +document.getElementById("swRpe").value || 0, rpe: (day.swim && day.swim.rpe) || 0, note: document.getElementById("swNote").value.trim()};
@@ -477,9 +478,9 @@ function renderSwim(){
   }
   if (!p){
     info.textContent = cur > "2026-12-05" ? "после блока 1" : "неделя " + blockWeek(cur);
-    box.innerHTML = cur > "2026-12-05"
+    box.innerHTML = (cur > "2026-12-05"
       ? `<p class="note">Блок 1 закончен. Программа блока 2 будет добавлена по итогам контрольной сотни 05.12.</p>`
-      : `<p class="note">${wd === 0 ? "Воскресенье — по плану без бассейна." : "Суббота — по плану без бассейна."} Если плавал — отметь «Сделано»: это засчитается в ударный режим.</p>` + swimLogHTML((state.days[cur] && state.days[cur].swim) || {}, false);
+      : `<p class="note">${wd === 0 ? "Воскресенье — по плану без бассейна." : "Суббота — по плану без бассейна."} Если плавал — отметь «Сделано»: это засчитается в ударный режим.</p>`) + swimLogHTML((state.days[cur] && state.days[cur].swim) || {}, false);
     wireSwimLog();
     return;
   }
