@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#2E56D8">
-<meta name="app-version" content="2026-11-21.3">
+<meta name="app-version" content="2026-11-21.4">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Тренировки">
@@ -131,6 +131,15 @@ tr:last-child td{border-bottom:none}
 .udar-week i{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:14px;background:rgba(255,255,255,.22);border:2px solid transparent}
 .udar-week i.on{background:#fff;color:#E8452C}
 .udar-week i.today{border-color:#fff}
+.wrow{display:flex;align-items:center;gap:10px}
+.wrow label{flex:1;font-weight:600}
+.wrow input{width:96px;font:inherit;font-size:18px;font-weight:700;padding:8px;border:1px solid var(--line);border-radius:10px;text-align:center;background:var(--surface);color:var(--ink)}
+.wstats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.wstats b{display:block;font-size:22px}
+.wstats span{font-size:12px;color:var(--muted)}
+.wspark{width:100%;height:44px}
+.wspark polyline{fill:none;stroke:var(--accent);stroke-width:2}
+.wgoal{stroke:var(--ok);stroke-dasharray:4 4;stroke-width:1}
 .rbx{padding:10px 0;border-top:1px solid var(--line)}
 .rbx:first-of-type{border-top:none}
 .rbx-h{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
@@ -205,6 +214,7 @@ details.zones table{margin-top:8px;font-size:12px}
   </header>
 
   <div id="udar"></div>
+  <div id="weightBox"></div>
   <div class="sec-h"><h2>Бассейн</h2><span id="blockInfo"></span></div>
   <div class="card" id="swim"></div>
   <div id="rubberBox"></div>
@@ -292,7 +302,7 @@ function exDone(e, day){
   const ks = e.sides ? [e.id+"_L", e.id+"_R"] : [e.id];
   return ks.every(k => { const v = val(k, day), t = target(k, day); return v > 0 && (t == null || v >= t); });
 }
-const dayHasData = o => KEYS.some(k => o[k] > 0) || RB.some(r => o[r.id]) || ["rb1","rb2","rb3","rb4","rb5"].some(k => o[k]) || (o.swim && (o.swim.done || o.swim.rpe || o.swim.hr || o.swim.note)) || !!o._freeze || !!o._double || !!o.kegel || o.wip_L > 0 || o.wip_R > 0 || o.mbr > 0 || Object.keys(o).some(k => (k.startsWith("c_") && Array.isArray(o[k]) && o[k].some(v => v > 0)) || k.endsWith("_up"));
+const dayHasData = o => KEYS.some(k => o[k] > 0) || o.weight > 0 || RB.some(r => o[r.id]) || ["rb1","rb2","rb3","rb4","rb5"].some(k => o[k]) || (o.swim && (o.swim.done || o.swim.rpe || o.swim.hr || o.swim.note)) || !!o._freeze || !!o._double || !!o.kegel || o.wip_L > 0 || o.wip_R > 0 || o.mbr > 0 || Object.keys(o).some(k => (k.startsWith("c_") && Array.isArray(o[k]) && o[k].some(v => v > 0)) || k.endsWith("_up"));
 const hasAny = day => state.days[day] && KEYS.some(k => state.days[day][k] > 0);
 
 // Ударный режим: день засчитан, если записаны все упражнения, которые были в программе в этот день (обе стороны там, где они есть)
@@ -449,6 +459,42 @@ document.getElementById("rubberBox").addEventListener("change", ev => {
 const ZONES = [["легко","до 22","медленнее 1:40","—"],["спокойно","22–24","1:28–1:33","0:44–0:46"],["порог","24–26","1:23–1:27","0:41–0:42"],["темп 200","27+","1:16–1:19","0:36–0:38"]];
 function swimCell(o){ const s = o.swim; if (!s || !(s.done || s.rpe || s.hr)) return "–"; return (s.done ? "✓" : "") + (s.hr ? " ♥" + s.hr : s.rpe ? " " + s.rpe : ""); }
 
+// ===== Вес (с 21.11.2026): state.days[дата].weight — утром натощак, кг =====
+const WEIGHT = {start:{d:"2026-11-21", w:101.2}, final:"86–90 кг", stages:[
+  {to:"2027-01-31", w:95, t:"~95 к концу января"},
+  {to:"2027-04-30", w:91, t:"~91 к концу апреля"},
+  {to:"2027-08-31", w:88, t:"87–89 к лету 2027"}]};
+const wAt = d => { const o = state.days[d]; return o && o.weight > 0 ? +o.weight : 0; };
+const wAvg = (end, n = 7) => { const v = []; for (let i = 0; i < n; i++){ const x = wAt(shift(end, -i)); if (x) v.push(x); } return v.length ? v.reduce((a, b) => a + b, 0) / v.length : 0; };
+function renderWeight(){
+  const box = document.getElementById("weightBox");
+  if (cur < WEIGHT.start.d){ box.innerHTML = ""; return; }
+  const today = wAt(cur), avg = wAvg(cur), prev = wAvg(shift(cur, -7));
+  const st = WEIGHT.stages.find(x => x.to >= cur) || WEIGHT.stages[WEIGHT.stages.length - 1];
+  const base = avg || today || WEIGHT.start.w, left = base - st.w;
+  const weeks = Math.max(1, dayDiff(st.to, cur) / 7), need = left / weeks;
+  const diff = avg && prev ? avg - prev : null;
+  const pts = []; for (let i = 59; i >= 0; i--){ const x = wAt(shift(cur, -i)); if (x) pts.push([59 - i, x]); }
+  let spark = "";
+  if (pts.length >= 2){
+    const ys = pts.map(p => p[1]), mn = Math.min(...ys, st.w), mx = Math.max(...ys), H = 44, W = 300;
+    const y = v => (H - 4 - (v - mn) / ((mx - mn) || 1) * (H - 8)).toFixed(1), x = i => (i / 59 * W).toFixed(1);
+    spark = `<svg viewBox="0 0 ${W} ${H}" class="wspark" preserveAspectRatio="none" aria-label="Вес за 60 дней"><line x1="0" x2="${W}" y1="${y(st.w)}" y2="${y(st.w)}" class="wgoal" vector-effect="non-scaling-stroke"/><polyline points="${pts.map(p => x(p[0]) + "," + y(p[1])).join(" ")}" vector-effect="non-scaling-stroke"/></svg>`;
+  }
+  box.innerHTML = `<div class="sec-h"><h2>Вес</h2><span>цель ${WEIGHT.final}</span></div>
+  <div class="card wcard">
+    <div class="wrow"><label for="wIn">Утром, натощак</label><input id="wIn" type="number" inputmode="decimal" step="0.1" min="40" max="200" value="${today || ""}" placeholder="${(avg || WEIGHT.start.w).toFixed(1)}"><span>кг</span></div>
+    <div class="wstats">
+      <div><b class="num">${avg ? avg.toFixed(1) : "–"}</b><span>среднее за 7 дней${diff != null ? ` · ${diff > 0 ? "+" : ""}${diff.toFixed(1)} к прошлой неделе` : ""}</span></div>
+      <div><b class="num">${st.w}</b><span>этап: ${st.t} · осталось ${left > 0 ? left.toFixed(1) : "0"} кг${left > 0 ? ` (~${need.toFixed(2)} кг/нед)` : " ✓"}</span></div>
+    </div>
+    ${spark}
+    <p class="note">Старт 21.11.2026: ${WEIGHT.start.w} кг. Этапы: ${WEIGHT.stages.map(x => x.t).join(" → ")}. Безопасно 0,5–0,7 кг в неделю; смотреть на среднее за неделю, а не на один день.</p>
+  </div>`;
+  const inp = document.getElementById("wIn");
+  inp.oninput = () => { const v = Math.round((+String(inp.value).replace(",", ".") || 0) * 10) / 10; setDay(day => { if (v >= 40 && v <= 200) day.weight = v; else delete day.weight; }); };
+  inp.onchange = () => renderWeight();
+}
 function swimLogHTML(s, isTest){ return `<div class="swim-log">
       <label class="chk ${s.done?"on":""}"><input type="checkbox" id="swDone" ${s.done?"checked":""}>Сделано</label>
       <select class="sb-in" id="swRpe" aria-label="Пульс за 10 с после ключевой серии"><option value="">♥ пульс</option>${[18,19,20,21,22,23,24,25,26,27,28,29,30,31,32].map(n=>`<option ${s.hr==n?"selected":""}>${n}</option>`).join("")}</select>
@@ -515,7 +561,7 @@ function openWatch(p){
 // ===== Калистеника (с 08.11.2026): каждый день + День А (верх) / День Б (низ и корпус) =====
 const SWITCH = "2026-11-08";
 const DAILY = [
-  {id:"kegel", name:"Кегель", hint:"3×10: сжать на 3 с, расслабить на 3 с", type:"sets", sets:3, goal:10},
+  {id:"kegel", name:"Кегель", hint:"Один подход: сжать на 3 с, расслабить на 3 с. Каждый день +1 ко вчерашнему", type:"sets", sets:1, goal:10, plus:true},
   {id:"wip", name:"Дворники", hint:"Лёжа на спине, колени согнуты: опускайте колени в сторону до пола", type:"num", sides:true, unit:"раз"},
 ];
 // lv — ступени по порядку; sets — подходов; goal — цель в подходе для перехода (в goalSets подходах); u — единица
@@ -580,10 +626,10 @@ function setDay(mut){
 function dailyHTML(){
   const o = state.days[cur] || {};
   const row = (e) => {
-    if (e.type === "sets") { const k = "c_"+e.id, a = arr(cur, k), pv = prevSets(k, cur), dn = kegelOk(o);
+    if (e.type === "sets") { const k = "c_"+e.id, a = arr(cur, k), pv = prevSets(k, cur), dn = kegelOk(o), tg = e.plus && pv ? Math.max(...pv.a) + 1 : e.goal;
       return `<article class="ex ${dn ? "done" : ""}" id="ex_${e.id}"><div class="ex-head"><div class="ex-title"><h2>${e.name}</h2><p>${e.hint}</p></div></div>
-      <div class="srow"><div class="sets-in">${[...Array(e.sets)].map((_, j) => `<input class="setin ${a[j] >= e.goal ? "hit" : ""}" data-set="${k}|${j}|${e.sets}" type="number" inputmode="numeric" min="0" value="${a[j] || ""}" placeholder="${pv && pv.a[j] ? pv.a[j] : e.goal}" aria-label="${e.name} подход ${j+1}">`).join("")}</div></div>
-      ${pv ? `<p class="prev">прошлый раз (${fmtShort(pv.d)}): ${pv.a.map(v => v || "–").join(" · ")}</p>` : ""}</article>`; }
+      <div class="srow"><div class="sets-in">${[...Array(e.sets)].map((_, j) => `<input class="setin ${a[j] >= tg ? "hit" : ""}" data-set="${k}|${j}|${e.sets}" type="number" inputmode="numeric" min="0" value="${a[j] || ""}" placeholder="${e.plus ? tg : (pv && pv.a[j] ? pv.a[j] : e.goal)}" aria-label="${e.name} подход ${j+1}">`).join("")}</div></div>
+      ${pv ? `<p class="prev">прошлый раз (${fmtShort(pv.d)}): ${e.plus ? Math.max(...pv.a) : pv.a.map(v => v || "–").join(" · ")}${e.plus ? ` · сегодня цель ${tg}` : ""}</p>` : ""}</article>`; }
     const keys = e.sides ? [[e.id+"_L","Левая"],[e.id+"_R","Правая"]] : [[e.id,""]];
     return `<article class="ex" id="ex_${e.id}"><div class="ex-head"><div class="ex-title"><h2>${e.name}</h2><p>${e.hint}</p></div></div>
       ${keys.map(([k, lab]) => { const pv = lastBefore(k, cur); return `<div class="side"><span class="side-label ${lab ? "" : "none"}">${lab}</span>
@@ -626,7 +672,7 @@ function render(){
   document.getElementById("dayDate").textContent = fmt(cur);
   document.getElementById("next").disabled = false;
   document.body.classList.toggle("future", cur > todayISO());
-  renderSwim(); renderRubber();
+  renderSwim(); renderRubber(); renderWeight();
   const t = ntype(cur);
   document.getElementById("zInfo").textContent = DOUBLE_DAYS[cur] || TYPE_NAME[t];
   document.getElementById("rules").textContent = t === "old"
